@@ -169,7 +169,7 @@ function  validateForm(){
 }
 
 function resetWorkflow(){
-     alertify.confirm("<?php echo $AppUI->_("LBL_RESET_INITIATION_WORKFLOW_CONFIRM") ?>", function () {
+     alertify.confirm("<?php echo $AppUI->_("Do you want to rest the approvation/authorization workflow?") ?>", function () {
         var f = document.reset_workflow;
         f.submit();
     }, function() {
@@ -199,7 +199,7 @@ function resetWorkflow(){
     <table width="95%" align="center" border="0" cellpadding="3" cellspacing="3" class="std" name="table_form" >
         <tr>
             <th colspan="4" align="center">
-                <?php echo $AppUI->_("LBL_OPEN_PROJECT_CHARTER"); ?>
+                <?php echo $AppUI->_("Project charter"); ?>
             </th>
         </tr>
         <tr>
@@ -391,9 +391,9 @@ function resetWorkflow(){
         <form name="reset_workflow" action="?m=initiating" method="post">
             <input type="hidden" name="dosql" value="do_reset_workflow" />
             <input type="hidden" name="initiating_id" value="<?php echo $initiating_id; ?>" />
-            <?php echo $AppUI->_("LBL_RESET_INITIATION_WORKFLOW") ?>
+            <?php echo $AppUI->_("Reset approvation/authorization workflow") ?>
             <br />
-            <input type="button" value="<?php echo $AppUI->_("LBL_RESET_INITIATION_WORKFLOW_BT_LABEL") ?>" onclick="resetWorkflow()" />
+            <input type="button" value="<?php echo $AppUI->_("Rest workflow") ?>" onclick="resetWorkflow()" />
         </form>
     </div>
 </div>

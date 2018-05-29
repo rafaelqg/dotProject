@@ -44,9 +44,11 @@ class CInitiating extends CDpObject {
         return $status;
     }
 
-    function CInitiating() {
-		$this->CDpObject('initiating', 'initiating_id');
+	
+	function __construct() {
+		parent::__construct('initiating', 'initiating_id');
 	}
+	
  
 	function check() {
 	// ensure the integrity of some variables
@@ -55,7 +57,7 @@ class CInitiating extends CDpObject {
 		return NULL; // object is ok
 	}
 
-	function delete() {
+	function delete($oid = NULL, $history_desc = '', $history_proj = 0) {
 		global $dPconfig;
 		$this->_message = "deleted";
 

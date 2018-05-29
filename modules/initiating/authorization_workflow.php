@@ -2,7 +2,7 @@
 <div align="center">
     <div align="center"  style="background-color: #FFF; width:95%;">
         <br />
-        <span style="color:#000"><?php echo $AppUI->_("LBL_AUTHORIZATION_WORKFLOW") ?></span>
+        <span style="color:#000"><?php echo $AppUI->_("Authorization workflow") ?></span>
         <br /><br />
         <canvas id="authorization_workflow" width="950px" height="120px" align="center" style="border:0px solid #000000;">
 
