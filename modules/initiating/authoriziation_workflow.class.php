@@ -23,12 +23,11 @@ class CAuthorizationWorkflow extends CDpObject {
   var $authorized_by= NULL;
   var $authorized_when= NULL;
 
-
-    function CAuthorizationWorkflow() {
-        $this->CDpObject('authorization_workflow', 'initiating_id');
-    }
+  
+  function __construct() {
+		parent::__construct('authorization_workflow', 'initiating_id');
+	}
     
-
     public function insert(){
         $query = new DBQuery();
         $query->addTable("authorization_workflow");

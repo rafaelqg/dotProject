@@ -44,40 +44,31 @@ $start_date = new CDate($obj->initiating_start_date);
 $end_date = new CDate($obj->initiating_end_date);
 ?>
 
-<link rel="stylesheet" type="text/css" media="all" href="<?php echo DP_BASE_URL; ?>/modules/dotproject_plus/css/modal.css"  />
+<link rel="stylesheet" type="text/css" media="all" href="./modules/initiating/libraries/modal/modal.css"  />
+<link rel="stylesheet" type="text/css" media="all" href="./modules/initiating/libraries/modal/table_form.css"  />
 <!-- include libraries for lightweight messages -->
-<link type="text/css" rel="stylesheet" href="./modules/timeplanning/js/jsLibraries/alertify/alertify.css" media="screen"></link>
-<script type="text/javascript" src="./modules/timeplanning/js/jsLibraries/alertify/alertify.js"></script>
-<link rel="stylesheet" type="text/css" media="all" href="<?php echo DP_BASE_URL; ?>/lib/calendar/calendar-dp.css" title="blue" />
-<!-- import the calendar script -->
-<script type="text/javascript" src="<?php echo DP_BASE_URL; ?>/lib/calendar/calendar.js"></script>
-<!-- import the language module -->
-<script type="text/javascript" src="<?php echo DP_BASE_URL; ?>/lib/calendar/lang/calendar-<?php echo $AppUI->user_locale; ?>.js"></script>
-<!-- mask -->
-<script type="text/javascript" src="./modules/dotproject_plus/js/jquery.maskMoney.js"></script>
-
+<link type="text/css" rel="stylesheet" href="./modules/initiating/libraries/alertifyjs/alertify.min.css" media="screen"></link>
+<script type="text/javascript" src="./modules/initiating/libraries/alertifyjs/alertify.min.js"></script>
+<!-- jquery -->
+<script type="text/javascript" src="./modules/initiating/libraries/jquery/jquery-3.2.1.min.js"></script>
+<script type="text/javascript" src="./modules/initiating/libraries/jquery/jquery-ui.js"></script>
+<link type="text/css" rel="stylesheet" href="./modules/initiating/libraries/jquery/jquery-ui.css" media="screen"></link>
+<script type="text/javascript" src="./modules/initiating/libraries/jquery/jquery-datepicker-customizations.js"></script>
+<script type="text/javascript" src="./modules/initiating/libraries/jquery/jquery.maskMoney.js"></script>
+<?php
+//get user dateformat preference
+GLOBAL $AppUI;
+$userDateFormat=$AppUI->user_prefs["SHDATEFORMAT"]; 
+$_SESSION["dateFormatPHP"]=$userDateFormat;
+$userDateFormat=str_replace("%d", "dd", $userDateFormat);
+$userDateFormat=str_replace("%m", "mm", $userDateFormat); 
+$userDateFormat=str_replace("%Y", "YY", $userDateFormat);
+$userDateFormat=strtolower($userDateFormat); 
+$_SESSION["dateFormat"]=$userDateFormat;
+$AppUI->savePlace();
+?>
 <script language="javascript">
-    var calendarField = '';
-    var calWin = null;
-    function popCalendar(field) {
-        //due to a bug in Firefox (where window.open, when in a function, does not properly unescape a url)
-        // we CANNOT do a window open with &amp; separating the parameters
-        //this bug does not occur if the window open occurs in an onclick event
-        //this bug does NOT occur in Internet explorer
-        calendarField = field;
-        idate = eval('document.uploadFrm.initiating_' + field + '.value');
-        window.open('index.php?m=public&a=calendar&dialog=1&callback=setCalendar&date=' + idate, 'calwin', 'width=280, height=250, scrollbars=no, status=no');
-    }
-    /**
-     *	@param string Input date in the format YYYYMMDD
-     *	@param string Formatted date
-     */
-    function setCalendar(idate, fdate) {
-        fld_date = eval('document.uploadFrm.initiating_' + calendarField);
-        fld_fdate = eval('document.uploadFrm.' + calendarField);
-        fld_date.value = idate;
-        fld_fdate.value = fdate;
-    }
+
       
     function submitIt() {
         validateForm();
@@ -140,6 +131,9 @@ $end_date = new CDate($obj->initiating_end_date);
         affixesStay : false, // set if the symbol will stay in the field after the user exits the field.
         symbolPosition : 'left' // use this setting to position the symbol at the left or right side of the value. default 'left'
     }); 
+	
+	$("#date1").datepicker({dateFormat: "<?php echo $_SESSION["dateFormat"] ?>"});
+	$("#date2").datepicker({dateFormat: "<?php echo $_SESSION["dateFormat"] ?>"});
  });
 
 function replaceAll(str, de, para){
@@ -178,7 +172,7 @@ function resetWorkflow(){
 }
     
 </script>
-<link href="modules/timeplanning/css/table_form.css" type="text/css" rel="stylesheet" />
+
 <style>
     textarea{
         width: 350px;
@@ -266,20 +260,16 @@ function resetWorkflow(){
                 <td class="td_label"><?php echo $AppUI->_('Start Date'); ?></td>
                 <td nowrap="nowrap"><input type="hidden" name="initiating_start_date" value="<?php echo $start_date->format(FMT_TIMESTAMP_DATE); ?>" />
                    <span style="display:<?php echo $initiating_completed!=1?"block":"none" ?>">
-                        <input type="text" style="width:80px" class="text" name="start_date" id="date1" value="<?php echo $start_date->format($df); ?>" class="text" disabled="disabled" />
-                        <a href="#" onclick="javascript:popCalendar('start_date', 'start_date');">
-                            <img src="./images/calendar.gif" width="24" height="12" alt="<?php echo $AppUI->_('Calendar'); ?>" border="0" />
-                        </a>
+                        <input type="text" style="width:80px" class="text" name="start_date" id="date1" value="<?php echo $start_date->format($df); ?>" class="text" />
+                   
                     </span>
                     <span style="display:<?php echo $initiating_completed==1?"block":"none" ?>"><?php echo $start_date->format($df); ?></span>     
                 </td>
                 <td class="td_label"><?php echo $AppUI->_('End Date'); ?></td>
                 <td nowrap="nowrap"><input type="hidden" name="initiating_end_date" value="<?php echo $end_date->format(FMT_TIMESTAMP_DATE); ?>" />
                     <span style="display:<?php echo $initiating_completed!=1?"block":"none" ?>">
-                        <input type="text" style="width:80px" class="text" name="end_date" id="date1" value="<?php echo $end_date->format($df); ?>" class="text" disabled="disabled" />
-                        <a href="#" onclick="javascript:popCalendar('end_date', 'end_date');">
-                            <img src="./images/calendar.gif" width="24" height="12" alt="<?php echo $AppUI->_('Calendar'); ?>" border="0" />
-                        </a>
+                        <input type="text" style="width:80px" class="text" name="end_date" id="date2" value="<?php echo $end_date->format($df); ?>" class="text" />
+  
                     </span>
                     <span style="display:<?php echo $initiating_completed==1?"block":"none" ?>"><?php echo $end_date->format($df); ?></span>
                 </td>
@@ -299,7 +289,7 @@ function resetWorkflow(){
             </tr>
    
             <tr>
-                <td class="td_label" > <?php echo $AppUI->_("LBL_STATUS"); ?>: </td>
+                <td class="td_label" > <?php echo $AppUI->_("Status"); ?>: </td>
                 <td colspan="3"> <?php echo $AppUI->_($obj->getStatus()); ?> </td>
             </tr>
             
