@@ -9,7 +9,7 @@ require_once (DP_BASE_DIR . "/classes/ui.class.php");
 require_once (DP_BASE_DIR . "/modules/projects/projects.class.php");
 require_once (DP_BASE_DIR . "/classes/permissions.class.php");
 require_once (DP_BASE_DIR . "/includes/session.php");
-require_once (DP_BASE_DIR . "/modules/timeplanning/view/export_project_plan/dompdf-master-v2/dompdf_config.inc.php");
+require_once (DP_BASE_DIR . "/modules/initiating/libraries/dompdf-master-v2/dompdf_config.inc.php");
 
 function formatListField($text){
     $text=str_ireplace("\n", "<br />", $text);
@@ -17,14 +17,13 @@ function formatListField($text){
 }
 
 set_time_limit (300);
-$htmlCode = "";
+
 //$htmlCode = file_get_contents($baseUrl . "/teste.php");
-$dompdf = new DOMPDF();
+
 //fix specific characters that aren't threated by html_entity_decode
 ?>
-
 <?php
-// chama a classe 'class.ezpdf.php' necess�ria para se gerar o documento
+
 $id=intval(dPgetParam($_GET, 'id', 0));
 $q = new DBQuery();
 $q->addQuery('*');
@@ -38,12 +37,16 @@ if (!db_loadObject($q->prepare(), $obj) && $id > 0) {
 	$AppUI->setMsg("invalidID", UI_MSG_ERROR, true);
 	$AppUI->redirect();
 }
-$q = new DBQuery();
-$q->addQuery("*");
-$q->addTable("contacts","con");
-$q->addJoin("users", "u", "u.user_contact=con.contact_id");
-$q->addWhere("user_id = " . $obj->initiating_manager);
-$contact = $q->loadHash();
+$managerName="";
+if($obj->initiating_manager>0){
+	$q = new DBQuery();
+	$q->addQuery("*");
+	$q->addTable("contacts","con");
+	$q->addJoin("users", "u", "u.user_contact=con.contact_id");
+	$q->addWhere("user_id = " . $obj->initiating_manager);
+	$contact = $q->loadHash();
+	$managerName = $contact['contact_first_name'] . " " .  $contact['contact_last_name'];
+}
 
 //get company info
 $projectId = $obj->project_id;
@@ -53,12 +56,11 @@ $companyId = $projectObj->project_company;
 $companyObj = new CCompany();
 $companyObj->load($companyId);
 $companyName = $companyObj->company_name;
-
-$htmlCode.="
-    <html>
-        <head>
-            <meta charset='UTF-8' content='text/html' http-equiv='Content-Type' />
-            <style>;
+//  <meta charset='UTF-8' content='text/html' http-equiv='Content-Type' />
+$htmlCode = "";          
+$htmlCode.="<!DOCTYPE html><html lang='en'><head>
+			<title>".$AppUI->_("Project Charter")."</title>
+            <style>
             
                 @page {
                     size: A4;
@@ -77,20 +79,20 @@ $htmlCode.="
                     line-height: 140%;
                 }
             </style>
-        </head>
-        <body>";
-$htmlCode.=("<div style='font-size:18px;text-align:center; font-weight: bold'>".$AppUI->_("LBL_PROJECT_CHARTER")."</div>"); 
+        </head><body>".chr(13).chr(10);
+$htmlCode.=("<div style='font-size:18px;text-align:center; font-weight: bold'>".$AppUI->_("Project Charter")."</div>"); 
 $htmlCode.="<br /> <br />";
 $htmlCode.="<div style='text-align:right;line-height:115%; color:silver;font-size:11px'>";
 //this line below is useless, but necessary to the next line be displayed (bugfix)
-$htmlCode.="<span color:white;font-size:1px>". $AppUI->_("LBL_PROJECT_COMPANY",UI_OUTPUT_HTML )."</span>";
-$htmlCode.="<span>". $AppUI->_("LBL_PROJECT_COMPANY",UI_OUTPUT_HTML ). "</span>: ". $companyName ."<br />";
-$htmlCode.="<span>". $AppUI->_("LBL_DATE",UI_OUTPUT_HTML). "</span>: ". date('d/m/Y', time())."<br />";
-$htmlCode.="</div>";
-$htmlCode.=("<br /><br /> <div style='text-align: justify;'>");
+$htmlCode.="<span style='color:white;font-size:1px'>". $AppUI->_("Company",UI_OUTPUT_HTML )."</span>";
+$htmlCode.="<span>". $AppUI->_("Company",UI_OUTPUT_HTML ). "</span>: ". $companyName ."<br />";
+$htmlCode.="<span>". $AppUI->_("Date",UI_OUTPUT_HTML). "</span>: ". date('d/m/Y', time())."<br />";
+$htmlCode.="</div>".chr(13).chr(10);
+$htmlCode.=("<br /><br /> <div style='text-align: justify;'>").chr(13).chr(10);
 $htmlCode.=(("<br /><b>".($AppUI->_("Project Title",UI_OUTPUT_HTML)).": </b><br />" . $obj->initiating_title));
 $htmlCode.=('<br />');
-$htmlCode.=(("<br /><b>".$AppUI->_("LBL_PROJECT_PROJECT_MANAGER").": </b><br />" . $contact['contact_first_name'] . " " .  $contact['contact_last_name']));
+$htmlCode.="<br /><b>". $AppUI->_("Project Manager") . ":</b><br />". $managerName; 
+
 $htmlCode.=('<br />');
 $htmlCode.=(("<br /><b>".$AppUI->_("Justification").": </b><br />" . formatListField($obj->initiating_justification)));
 $htmlCode.=('<br />');
@@ -115,18 +117,17 @@ $htmlCode.=('<br />');
 $htmlCode.=(("<br /><b>".$AppUI->_("Milestones",UI_OUTPUT_HTML).": </b><br />" .  formatListField($obj->initiating_milestone)));
 $htmlCode.=('<br />');
 $htmlCode.=(("<br /><b>".$AppUI->_("Criteria for success",UI_OUTPUT_HTML).": </b><br />" .  formatListField($obj->initiating_success)));
-$htmlCode.=('</div>');
+$htmlCode.=('</div>').chr(13).chr(10);
 $htmlCode.=('<br />');
 $htmlCode.=('<br />');
-$htmlCode.=("<div style='text-align:center'><b>".$AppUI->_("LBL_SIGNATURE",UI_OUTPUT_HTML)."</b></div>"); 
-$htmlCode.= "<br /><br /><br /><br />";
+$htmlCode.=("<div style='text-align:center'><b>".$AppUI->_("Signatures",UI_OUTPUT_HTML)."</b></div>").chr(13).chr(10);; 
+$htmlCode.= "<br /><br /><br /><br />".chr(13).chr(10);;
 $htmlCode.= "<div style='text-align:center'>";
-$htmlCode.= "<span style='border-top: 1px solid #000000'>Patrocinador do projeto</span>";
-$htmlCode.= "<br /><br /><br /><br />";
-$htmlCode.= "<span style='border-top: 1px solid #000000'>Gerente do projeto</span>";
-$htmlCode.= "</div>";
-$htmlCode.= "</body></html>";
-
+$htmlCode.= "<span style='border-top: 1px solid #000000'>" . $AppUI->_("Project Sponsor",UI_OUTPUT_HTML) . "</span>".chr(13).chr(10);;
+$htmlCode.= "<br /><br /><br /><br />".chr(13).chr(10);;
+$htmlCode.= "<span style='border-top: 1px solid #000000'>" . $AppUI->_("Project Manager",UI_OUTPUT_HTML) . "</span>".chr(13).chr(10);;
+$htmlCode.= "</div>".chr(13).chr(10);
+$htmlCode.= "</body></html>".chr(13).chr(10);
 
 $htmlCode=utf8_decode($htmlCode); //keep this line, make the special chars on labels keeps well formated
 //$htmlCode=str_ireplace("\n", "<br />", $htmlCode);
@@ -135,8 +136,10 @@ $htmlCode=str_ireplace("&aacute;", "á", $htmlCode);
 //tmlCode=str_ireplace("&agrave;", "à", $htmlCode);
 //$htmlCode=html_entity_decode($htmlCode,0);//convert HTML chars (e.g. &nbsp;) to the real characters
 //$htmlCode=str_ireplace("&Atilde;&copy;", "é", $htmlCode);
-//echo $htmlCode;
+echo $htmlCode;
+$dompdf = new DOMPDF();
 $dompdf->load_html($htmlCode);
 $dompdf->render();
+$dompdf->output();
 $dompdf->stream("project_charter_". $id.".pdf");
 ?>

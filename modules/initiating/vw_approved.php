@@ -29,11 +29,14 @@ $list = $q->loadList();
             $creator = new CUser();
             $creator->load($row["initiating_create_by"]);
             ?>
-            <td><?php echo $row["initiating_title"] ?></td>
+			<td>
+				<a href="index.php?m=projects&a=view&project_id=<?php echo $row["project_id"] ?>">
+					<?php echo $row["initiating_title"] ?>
+				</a>
+			</td>
             <td><?php echo ucfirst($manager->user_username); ?></td>
             <td><?php echo ucfirst($creator->user_username); ?></td>
             <td><?php echo $row["initiating_date_create"] ?></td>
-            <td><a href="index.php?m=initiating&a=addedit&id=<?php echo $row["initiating_id"] ?>">edit</a></td>
-        </tr>
+       </tr>
     <?php } ?>
 </table>

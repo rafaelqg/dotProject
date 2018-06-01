@@ -77,7 +77,7 @@ $AppUI->savePlace();
     }
     // função para marcar como concluido o preenchimento do termo de abertura
     function completedIt() {
-        alertify.confirm("<?php echo $AppUI->_("LBL_CONFIRM_PROJECT_CHARTER_CONCLUSION") ?>", function () {
+        alertify.confirm("<?php echo $AppUI->_("Do you confirm the project charter conclusion?") ?>", function () {
             validateForm();
             var f = document.uploadFrm;
             f.initiating_completed.value='1';
@@ -320,9 +320,9 @@ function resetWorkflow(){
                 <?php if ($initiating_id && !$initiating_completed) { ?>
                     <input type="button" class="button" value="<?php echo $AppUI->_('Completed'); ?>" onclick="completedIt()" />
                 <?php } if ($initiating_completed && !$initiating_approved) { ?>
-                    <input type="button" class="button" value="<?php echo $AppUI->_('LBL_APROVEMENT'); ?>" onclick="document.getElementById('authorize_div').style.display='none';document.getElementById('approve_div').style.display='block';modal.style.display = 'block';" />
+                    <input type="button" class="button" value="<?php echo $AppUI->_('Approved'); ?>" onclick="document.getElementById('authorize_div').style.display='none';document.getElementById('approve_div').style.display='block';modal.style.display = 'block';" />
                 <?php } if ($initiating_approved && !$initiating_authorized) { ?>
-                    <input type="button" class="button" value="<?php echo $AppUI->_('LBL_AUTHORIZATION'); ?>" onclick="document.getElementById('authorize_div').style.display='block';document.getElementById('approve_div').style.display='none';modal.style.display = 'block';" />
+                    <input type="button" class="button" value="<?php echo $AppUI->_('Authorized'); ?>" onclick="document.getElementById('authorize_div').style.display='block';document.getElementById('approve_div').style.display='none';modal.style.display = 'block';" />
                <?php } ?>
             </td>
         </tr>
