@@ -75,6 +75,19 @@ $AppUI->savePlace();
         var f = document.uploadFrm;
         f.submit();
     }
+	
+	function newMilestone(){
+		$("#new_milestone").val("1");
+		submitIt();
+	}
+	
+	function delMilestone(id){
+		$("#delete_milestone_id").val(id);
+		submitIt();
+	}
+	
+	delete_milestone_id
+	
     // função para marcar como concluido o preenchimento do termo de abertura
     function completedIt() {
         alertify.confirm("<?php echo $AppUI->_("Do you confirm the project charter conclusion?") ?>", function () {
@@ -134,6 +147,8 @@ $AppUI->savePlace();
 	
 	$("#date1").datepicker({dateFormat: "<?php echo $_SESSION["dateFormat"] ?>"});
 	$("#date2").datepicker({dateFormat: "<?php echo $_SESSION["dateFormat"] ?>"});
+	
+	
  });
 
 function replaceAll(str, de, para){
@@ -276,8 +291,42 @@ function resetWorkflow(){
             <tr>
                 <td class="td_label"><?php echo $AppUI->_('Milestones'); ?>:</td>
                 <td>
-                    <textarea style="display:<?php echo $initiating_completed!=1?"block":"none" ?>" name="initiating_milestone"   class="textarea"><?php echo $obj->initiating_milestone; ?></textarea>
-                    <span style="display:<?php echo $initiating_completed==1?"block":"none" ?>"><?php echo str_replace("\n", "<br />", $obj->initiating_milestone); ?></span>
+				
+                    <!-- <textarea style="display:<?php echo $initiating_completed!=1?"block":"none" ?>" name="initiating_milestone"   class="textarea"><?php echo $obj->initiating_milestone; ?></textarea> -->
+					<img src="./modules/initiating/images/add_button_icon.png" onclick="newMilestone()" style="cursor:pointer;width:18px;height:18px;display:<?php echo $initiating_completed!=1?"block":"none" ?>" />
+					<?php
+					$milestones =$obj->loadMillestones();
+					$i=0;
+					
+					foreach($milestones as $milestone){
+						$milestone_date = new CDate($milestone->task_start_date);
+						?>
+						<span style="display:<?php echo $initiating_completed!=1?"block":"none" ?>">					
+							<br />
+							<input type="hidden" name="milestone_id_<?php echo $i ?>" value="<?php echo $milestone->task_id ?>" />
+							<input type="text" value="<?php echo $milestone->task_name ?>" style="width:260px"  class="text" name="milestone_name_<?php echo $i ?>" id="milestone_name_<?php echo $i ?>" />
+							<input type="text" style="width:80px" class="text" name="milestone_date_<?php echo $i ?>" id="milestone_date_<?php echo $i ?>" value="<?php echo $milestone_date->format($df); ?>" class="text" />           
+							<script>
+								$("#milestone_date_<?php echo $i ?>").datepicker({dateFormat: "<?php echo $_SESSION["dateFormat"] ?>"});
+							</script>
+							
+							<img src="./modules/initiating/images/trash-icon.png" onclick="delMilestone(<?php echo $milestone->task_id ?>)" style="cursor:pointer;width:15px;height:15px;" />
+					
+						</span>
+						<span style="display:<?php echo $initiating_completed==1?"block":"none" ?>">
+						<?php echo $milestone->task_name ?> &nbsp; (<?php echo $milestone_date->format($df); ?>)
+						</span>
+						<br />
+						<?php
+						$i++;
+					}
+					?>
+					<input type="hidden" name="total_milestones" value="<?php echo $i ?>" />
+					
+					<input type="hidden" name="new_milestone" id="new_milestone" value="0" />
+					<input type="hidden" name="delete_milestone_id" id="delete_milestone_id" value="0" />
+					
+                   <!-- <span style="display:<?php echo $initiating_completed==1?"block":"none" ?>"><?php echo str_replace("\n", "<br />", $obj->initiating_milestone); ?></span> -->
                
                 </td>
                 <td class="td_label"><?php echo $AppUI->_('Criteria for success'); ?>:</td>

@@ -85,4 +85,22 @@ class CInitiating extends CDpObject {
              }
             return $initiating;
         }
+		
+	public function loadMillestones(){
+        $q = new DBQuery();
+        $q->addQuery("task_id");
+        $q->addTable("tasks");
+        $q->addWhere("task_project=". $this->project_id ."  and task_milestone=1 order by task_start_date asc");
+        $results = db_loadHashList($q->prepare(true), "task_id");
+        $list= array();
+        $i=0;
+        foreach ($results as $data) {
+		   $obj = new CTask();
+		   $obj->load($data[0]);
+           $list[$i]=$obj;
+           $i++;
+        }
+        return $list;
+    }	
+		
 }

@@ -17,7 +17,7 @@ function formatListField($text){
 }
 
 set_time_limit (300);
-
+$df = $AppUI->getPref('SHDATEFORMAT');
 //$htmlCode = file_get_contents($baseUrl . "/teste.php");
 
 //fix specific characters that aren't threated by html_entity_decode
@@ -29,8 +29,10 @@ $q = new DBQuery();
 $q->addQuery('*');
 $q->addTable('initiating');
 $q->addWhere('initiating_id = ' . $id);
-$obj = new CInitiating(); 
+$initiatingObj= new CInitiating();  
+$initiatingObj->load($id);
 // load the record data
+$obj = new CInitiating(); 
 $obj = null;
 if (!db_loadObject($q->prepare(), $obj) && $id > 0) {
 	$AppUI->setMsg('Initiating');
@@ -107,14 +109,24 @@ $htmlCode.=('<br />');
 $htmlCode.=(("<br /><b>".($AppUI->_("Budget",UI_OUTPUT_HTML)). " (R$): </b><br />" .  number_format($obj->initiating_budget, 2, ',', '.')));
 $htmlCode.=('<br />');
 
-$dateStart=date("d/m/Y", strtotime($obj->initiating_start_date));
-$dateEnd=date("d/m/Y", strtotime($obj->initiating_end_date));
+$dateStart = new CDate($obj->initiating_start_date);
+$dateEnd = new CDate($obj->initiating_end_date);
 
-$htmlCode.=(("<br /><b>".$AppUI->_("Start Date",UI_OUTPUT_HTML).": </b><br />" .  $dateStart));
+
+$htmlCode.=(("<br /><b>".$AppUI->_("Start Date",UI_OUTPUT_HTML).": </b><br />" .  $dateStart->format($df)));
 $htmlCode.=('<br />');
-$htmlCode.=(("<br /><b>".$AppUI->_("End Date",UI_OUTPUT_HTML).": </b><br />" . $dateEnd ));
+$htmlCode.=(("<br /><b>".$AppUI->_("End Date",UI_OUTPUT_HTML).": </b><br />" . $dateEnd->format($df) ));
 $htmlCode.=('<br />');
-$htmlCode.=(("<br /><b>".$AppUI->_("Milestones",UI_OUTPUT_HTML).": </b><br />" .  formatListField($obj->initiating_milestone)));
+
+$milestones_text="";
+$milestones =$initiatingObj->loadMillestones();
+foreach($milestones as $milestone){
+		$milestone_date = new CDate($milestone->task_start_date);
+		$milestones_text .= $milestone->task_name ." (". $milestone_date->format($df).")<br />"; 
+}
+
+
+$htmlCode.=(("<br /><b>".$AppUI->_("Milestones",UI_OUTPUT_HTML).": </b><br />" .  formatListField($milestones_text)));
 $htmlCode.=('<br />');
 $htmlCode.=(("<br /><b>".$AppUI->_("Criteria for success",UI_OUTPUT_HTML).": </b><br />" .  formatListField($obj->initiating_success)));
 $htmlCode.=('</div>').chr(13).chr(10);

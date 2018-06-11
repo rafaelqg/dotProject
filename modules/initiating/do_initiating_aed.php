@@ -2,6 +2,7 @@
 if (!defined('DP_BASE_DIR')) {
     die('You should not access this file directly.');
 }
+require_once (DP_BASE_DIR . '/modules/tasks/tasks.class.php');
 require_once (DP_BASE_DIR . "/modules/initiating/authoriziation_workflow.class.php");
 $initiating_id = intval(dPgetParam($_POST, 'initiating_id', 0));
 $del = intval(dPgetParam($_POST, 'del', 0));
@@ -20,6 +21,7 @@ if (!$obj->bind($_POST)) {
     $AppUI->redirect();
 }
 
+
 $df=str_replace("%","",$AppUI->getPref('SHDATEFORMAT')); 
 $datetime = new DateTime();
 // convert dates to SQL format first
@@ -32,6 +34,24 @@ if ($obj->initiating_end_date) {
     $date = $datetime->createFromFormat( $df, dPgetParam($_POST, 'end_date', 0));//'d/m/Y'
     $obj->initiating_end_date = $date->format("Y-m-d");
 }
+
+//update_milestones
+$total_milestones = intval(dPgetParam($_POST, 'total_milestones', 0));
+for($i=0;$i<$total_milestones ;$i++){
+	$idMS=dPgetParam($_POST, 'milestone_id_'.$i, 0);
+	$ms = new CTask();
+	$ms->load($idMS);
+	$ms->task_name=dPgetParam($_POST, 'milestone_name_'.$i, 0);
+	if(dPgetParam($_POST, 'milestone_date_'.$i, 0) !=""){
+		$date = $datetime->createFromFormat( $df, dPgetParam($_POST, 'milestone_date_'.$i, 0));//'d/m/Y'
+		$ms->task_start_date = $date->format("Y-m-d");	
+	}else{
+		$ms->task_start_date=NULL;
+	}
+	$ms->store();
+}
+
+
 if ($initiating_id) {
     $obj->_message = 'updated'; 
 } else {
@@ -47,6 +67,31 @@ if ($initiating_id) {
         $obj->initiating_authorized = 1;
     }
     $obj->_message = 'added';
+}
+
+//create new milestone
+if(dPgetParam($_POST, 'new_milestone', 0) == "1"){
+    $ms = new CTask();
+	$ms->task_id=null;
+	$ms->task_project = $obj->project_id;
+	$ms->task_name = "";
+	$ms->task_duration = 0;
+	$ms->task_milestone=1;
+	$ms->task_start_date = NULL;
+	$ms->task_end_date = NULL;
+	$ms->task_creator=$AppUI->user_id;
+	db_insertObject('tasks', $ms, 'task_id');
+	$task_id=$ms->task_id;
+	$ms->load($task_id);
+	$ms->task_parent=$task_id;
+	$ms->store();
+}
+
+//delete milestone
+if(dPgetParam($_POST, 'delete_milestone_id', 0) != "0"){
+	$ms = new CTask();
+	$ms->load(dPgetParam($_POST, 'delete_milestone_id', 0));
+	$ms->delete();
 }
 
 // delete the item
