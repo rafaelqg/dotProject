@@ -261,7 +261,6 @@ function resetWorkflow(){
                 <td nowrap="nowrap"><input type="hidden" name="initiating_start_date" value="<?php echo $start_date->format(FMT_TIMESTAMP_DATE); ?>" />
                    <span style="display:<?php echo $initiating_completed!=1?"block":"none" ?>">
                         <input type="text" style="width:80px" class="text" name="start_date" id="date1" value="<?php echo $start_date->format($df); ?>" class="text" />
-                   
                     </span>
                     <span style="display:<?php echo $initiating_completed==1?"block":"none" ?>"><?php echo $start_date->format($df); ?></span>     
                 </td>

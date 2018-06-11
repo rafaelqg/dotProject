@@ -9,18 +9,28 @@ $completed = intval(dPgetParam($_POST, 'initiating_completed', 0));
 $approved = intval(dPgetParam($_POST, 'initiating_approved', 0));
 $authorized = intval(dPgetParam($_POST, 'initiating_authorized', 0));
 global $db, $AppUI;
+
 $not = dPgetParam($_POST, 'notify', '0');
 if ($not != '0')
     $not = '1';
+
 $obj = new CInitiating();
+if (!$obj->bind($_POST)) {
+    $AppUI->setMsg($obj->getError(), UI_MSG_ERROR);
+    $AppUI->redirect();
+}
+
+$df=str_replace("%","",$AppUI->getPref('SHDATEFORMAT')); 
+$datetime = new DateTime();
 // convert dates to SQL format first
 if ($obj->initiating_start_date) {
-    $date = new CDate($obj->initiating_start_date);
-    $obj->initiating_start_date = $date->format(FMT_DATETIME_MYSQL);
+	$date = $datetime->createFromFormat( $df, dPgetParam($_POST, 'start_date', 0));//'d/m/Y'
+    $obj->initiating_start_date = $date->format("Y-m-d");
 }
+
 if ($obj->initiating_end_date) {
-    $date = new CDate($obj->initiating_end_date);
-    $obj->initiating_end_date = $date->format(FMT_DATETIME_MYSQL);
+    $date = $datetime->createFromFormat( $df, dPgetParam($_POST, 'end_date', 0));//'d/m/Y'
+    $obj->initiating_end_date = $date->format("Y-m-d");
 }
 if ($initiating_id) {
     $obj->_message = 'updated'; 
@@ -38,10 +48,7 @@ if ($initiating_id) {
     }
     $obj->_message = 'added';
 }
-if (!$obj->bind($_POST)) {
-    $AppUI->setMsg($obj->getError(), UI_MSG_ERROR);
-    $AppUI->redirect();
-}
+
 // delete the item
 if ($del) {
     $obj->load($initiating_id);
@@ -73,18 +80,19 @@ if ($_POST["action_authorized_performed"] == "1") {
 if($initiating_id>0){
 //update values of authorization woerkflow
     $approvalWorkflow= new CAuthorizationWorkflow();
-    $approvalWorkflow->load($initiating_id);
-
-    
+    $resultAWLoad=$approvalWorkflow->load($initiating_id);
+	//new object - force its insertion, to the store method update that. (necessary because it is an weak entity, using a pre-defined ky from the strong entity)
+	if($resultAWLoad!=1){
+		$approvalWorkflow->insert();
+	}	
     if( is_null($approvalWorkflow->draft_when)){    
         $approvalWorkflow->draft_when=date("Y-m-d H:i:s");
         $approvalWorkflow->draft_by=$AppUI->user_id;
-        //new object - force its insertion, to the store method update that. (necessary because it is an weak entity, using a pre-defined ky from the strong entity)
-        $approvalWorkflow->insert();
+
     }
     
     if($obj->initiating_completed==1 && is_null($approvalWorkflow->completed_when) ){
-        $approvalWorkflow->completed_when=date("Y-m-d H:i:s");
+		$approvalWorkflow->completed_when=date("Y-m-d H:i:s");
         $approvalWorkflow->completed_by=$AppUI->user_id;
     }else if ($obj->initiating_completed!=1){
         $approvalWorkflow->completed_when=null;
@@ -119,6 +127,6 @@ if (($msg = $obj->store())) {
     $obj->load($obj->initiating_id);
     if ($not == '1')
         $obj->notify();
-    $AppUI->setMsg($AppUI->_("LBL_PROJECT_CHARTER_INCLUDED"), UI_MSG_OK, true);
+    $AppUI->setMsg($AppUI->_("Project charter included"), UI_MSG_OK, true);
 }
 $AppUI->redirect();

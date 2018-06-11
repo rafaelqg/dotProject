@@ -72,7 +72,7 @@ class CSetupInitiating {
 		$q->createTable('authorization_workflow');
 		$q->createDefinition("(
 	  initiating_id int(11) NOT NULL,
-	  draft_byn int(11) DEFAULT NULL,
+	  draft_by int(11) DEFAULT NULL,
 	  draft_when DATETIME DEFAULT NULL,
 	  completed_by int(11) DEFAULT NULL,
 	  completed_when DATETIME DEFAULT NULL,
@@ -95,6 +95,10 @@ class CSetupInitiating {
 	
 	$q = new DBQuery();
   	$q->dropTable('initiating_stakeholder');
+  	$q->exec();
+	
+	$q = new DBQuery();
+  	$q->dropTable('authorization_workflow');
   	$q->exec();
 	
  }
