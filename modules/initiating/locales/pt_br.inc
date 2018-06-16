@@ -26,3 +26,4 @@
 "LBL_PROJECT" => "Projeto",
 "initiatingsDelete"=>"Você realmente deseja deletar este termo de abertura?",
 "LBL_PROJECT_COMPANY" => "Organização",
+"Print PDF" => "Gerar PDF",

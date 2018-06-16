@@ -362,7 +362,7 @@ function resetWorkflow(){
     <table width="95%" align="center">
         <tr>
             <td align="right">
-                <?php print("<a href='?m=initiating&amp;a=pdf&amp;id=$initiating_id&amp;suppressHeaders=1'><b>" . $AppUI->_('Gerar PDF') . "</b></a>\n"); ?>
+                <?php print("<a href='?m=initiating&amp;a=pdf&amp;id=$initiating_id&amp;suppressHeaders=1'><b>" . $AppUI->_("Print PDF") . "</b></a>\n"); ?>
                 <input style="visibility:<?php echo $initiating_completed!=1?"visible":"hidden" ?>" type="button" class="button" value="<?php echo ucfirst($AppUI->_('submit')); ?>" onclick="submitIt()" />
         
                 <?php if ($initiating_id && !$initiating_completed) { ?>
