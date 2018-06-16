@@ -431,7 +431,7 @@ function resetWorkflow(){
             <input type="hidden" name="initiating_id" value="<?php echo $initiating_id; ?>" />
             <?php echo $AppUI->_("Reset approvation/authorization workflow") ?>
             <br />
-            <input type="button" value="<?php echo $AppUI->_("Rest workflow") ?>" onclick="resetWorkflow()" />
+            <input type="button" value="<?php echo $AppUI->_("Reset workflow") ?>" onclick="resetWorkflow()" />
         </form>
     </div>
 </div>
