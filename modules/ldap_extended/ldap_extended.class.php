@@ -139,6 +139,7 @@ class CLDAPExtended extends CDpObject {
 	}
 	
 	//based on: https://samjlevy.com/php-ldap-membership/
+	//http://www.forumsys.com/tutorials/integration-how-to/ldap/online-ldap-test-server/)
 	public static function get_groups($user) {
 		// Active Directory server
 		$ldap_host = "ldap.forumsys.com";//replace for a dynamic value
@@ -150,10 +151,13 @@ class CLDAPExtended extends CDpObject {
 		$password = "password";//replace for a dynamic value
 		
 		// Active Directory DN, base path for our querying user
-		$ldap_dn = "cn=read-only-admin,dc=example,dc=com";//replace dynamic
+		//$ldap_dn = "cn=read-only-admin,dc=example,dc=com";//replace dynamic
 		
-	 
+		$ldap_dn = "uid=galieleo,dc=example,dc=com";
+		//$ldap_dn = "ou=mathematicians,dc=example,dc=com";
+
 		// Connect to AD
+		//$ldap = ldap_connect($ldap_host,$ldap_port) or die("Could not connect to LDAP");
 		$ldap = ldap_connect($ldap_host,$ldap_port) or die("Could not connect to LDAP");
 		ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
 		ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
@@ -165,8 +169,16 @@ class CLDAPExtended extends CDpObject {
 		} 
 		
 		// Search AD
+		$attr = array("OU","CN","DC");
+		$ldap_dn_group = "ou=mathematicians,dc=example,dc=com";
+		$results = ldap_search($ldap,$ldap_dn_group,"(cn=*)" );
 		
-		$results = ldap_search($ldap,$ldap_dn,"(samaccountname=$user)",array("memberof","primarygroupid")); //samaccountname	
+		
+		//$results = ldap_search($ldap,$ldap_dn,"(uid=gauss)",  $attr);	
+		
+		
+		
+		//$results = ldap_search($ldap,$ldap_dn,"(samaccountname=$user)",array("memberof","primarygroupid")); //samaccountname	
 		$entries = ldap_get_entries($ldap, $results);		
 		?>
 		<pre>
