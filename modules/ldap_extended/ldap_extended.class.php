@@ -9,6 +9,21 @@ require_once $AppUI->getSystemClass('dp');
 
 
 class CLDAPExtended extends CDpObject {
+		//replace such values from some configuration data
+		//credentials
+		var $ldap_host = "ldap.forumsys.com";
+		var $ldap_port=389;
+		//credatials for login
+		var $ldap_dn = "cn=read-only-admin,dc=example,dc=com";//replace dynamic
+		var $password = "password";//replace for a dynamic value
+		
+		
+		function __construct() {
+			parent::__construct('ldap_extended', 'ldap_extended_id');
+		}
+	
+	
+	
 /*
   var $ldap_extended_id = NULL;
   var $user_id = NULL;
@@ -16,9 +31,6 @@ class CLDAPExtended extends CDpObject {
 
 
 	
-	function __construct() {
-		parent::__construct('ldap_extended', 'ldap_extended_id');
-	}
 	
  
 	function check() {
@@ -35,7 +47,36 @@ class CLDAPExtended extends CDpObject {
 	*/	
 	//SELECT * FROM   information_schema.tables WHERE  TABLE_SCHEMA = 'dotproject_ldap' order by UPDATE_TIME desc LIMIT 0, 1000
 	
-	public static function deleteRolesFromUser($user_name){
+	
+	
+	public function getDotProjectRoles(){
+		$q = new DBQuery();
+		$q->addQuery("value");
+		$q->addTable("gacl_aro_groups");
+		$sql = $q->prepare();
+		$records= db_loadList($sql);
+		$roles=array();
+		foreach($records as $record){
+			array_push($roles,$record[0]);
+		}
+		return $roles;
+	}
+	
+	public function getDotProjectUsers(){
+		$q = new DBQuery();
+		$q->addQuery("user_username");
+		$q->addTable("users");
+		$sql = $q->prepare();
+		$records= db_loadList($sql);
+		$users=array();
+		foreach($records as $record){
+			array_push($users,$record[0]);
+		}
+		return $users;
+	}
+	
+	
+	public function deleteRoleFromUser($user_name,$role_name){
 		
 		global $AppUI;
 		$perms =& $AppUI->acl();
@@ -55,28 +96,26 @@ class CLDAPExtended extends CDpObject {
 		}
 		 
 		 if($userIdPermissions != -1){
-			 	 
-			$q = new DBQuery();
-			$q->addQuery("group_id");
-			$q->addTable("gacl_groups_aro_map");
-			$q->addWhere("aro_id=" . $userIdPermissions);
-			$sql = $q->prepare();
-			$records= db_loadList($sql);
 			
+			$q = new DBQuery();
+			$q->addQuery("id");
+			$q->addTable("gacl_aro_groups");
+			$q->addWhere("name = '"  . stripslashes($role_name) . "' or value='".stripslashes($role_name)."'");
+			$sql = $q->prepare();
+			echo $sql; 
+			$records= db_loadList($sql);
 			foreach($records as $record){
 				$role_id= $record[0];
 				$perms->deleteUserRole($role_id, $user_id);	
-				echo "Role " . $role_id ." deleted for user(" . $user_name . ")". $userIdPermissions;
-			}
-
-				
-				
+				//echo "Role " . $role_id ." deleted for user(" . $user_name . ")". $userIdPermissions;
+			 }	 
+				 			
 		}else{
-			echo "Roles NOT deleted for user(" . $user_name . ")". $userIdPermissions;
+			//echo "Roles NOT deleted for user(" . $user_name . ")". $userIdPermissions;
 		}	
 	}
 	
-	public static function addRoleToUser($user_name, $role_name){
+	public function addRoleToUser($user_name, $role_name){
 	
 		global $AppUI;
 		//SELECT group_id, aro_id FROM dotproject_ldap.dotp_gacl_groups_aro_map;
@@ -170,8 +209,8 @@ class CLDAPExtended extends CDpObject {
 		
 		// Search AD
 		$attr = array("OU","CN","DC");
-		$ldap_dn_group = "ou=mathematicians,dc=example,dc=com";
-		$results = ldap_search($ldap,$ldap_dn_group,"(cn=*)" );
+		//$ldap_dn_group = "ou=mathematicians,dc=example,dc=com";
+		$results = ldap_search($ldap,$ldap_dn,"(cn=*)" );
 		
 		
 		//$results = ldap_search($ldap,$ldap_dn,"(uid=gauss)",  $attr);	
@@ -218,5 +257,42 @@ class CLDAPExtended extends CDpObject {
 		
 		return $output;
 	}
+	
+	/**
+	paramter group: its identification on LDAP as : "ou=mathematicians,dc=example,dc=com"
+	**/
+	public function getUsersByGroup($group) {
+		// Active Directory server
+
+		// Connect to AD
+		$ldap = ldap_connect($this->ldap_host,$this->ldap_port) or die("Could not connect to LDAP");
+		ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
+		ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
+		
+		if(ldap_bind($ldap,$this->ldap_dn,$this->password)){
+			//echo "Bind LDAP successfully.";
+		}else{
+			die("Could not bind to LDAP");
+		} 
+		
+		// Search AD
+		$results = ldap_search($ldap,$group,"(cn=*)" );
+		$entries = ldap_get_entries($ldap, $results);		
+		//print_r($entries );
+
+		$users= array();
+		// No information found, bad user
+		if($entries['count'] >0){
+		// Get groups and primary group token
+			$output = $entries[0]['uniquemember'];		
+			foreach ($output as $user){
+				$commaPos=strpos($user,",");
+				$userName=substr($user,4,$commaPos-4);
+				array_push($users,$userName);
+			}
+		} 
+		return $users;
+	}
+	
 	
 }
