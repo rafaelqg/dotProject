@@ -6,7 +6,7 @@ $AppUI->savePlace();
 require_once DP_BASE_DIR ."/modules/ldap_extended/ldap_extended.class.php";
 
 $ldapExt= new CLDAPExtended();
-$ldapExt->addRoleToUser("admin", "admin");
+
 $dpRoles=$ldapExt->getDotProjectRoles();
 $users=$ldapExt->getDotProjectUsers();
 echo "Dotproject users:<br />";

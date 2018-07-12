@@ -8,6 +8,8 @@ require_once $AppUI->getModuleClass('admin');
 require_once $AppUI->getSystemClass('dp');
 
 
+
+
 class CLDAPExtended extends CDpObject {
 		//replace such values from some configuration data
 		//credentials
@@ -20,6 +22,15 @@ class CLDAPExtended extends CDpObject {
 		
 		function __construct() {
 			parent::__construct('ldap_extended', 'ldap_extended_id');
+			global $dPconfig;
+			
+			echo "host - " . $dPconfig['ldap_host'];
+			echo "port - " .  $dPconfig['ldap_port'];
+			echo "version - " . $dPconfig['ldap_version'];
+			echo "base_dn - " . $dPconfig['ldap_base_dn'];
+			echo "search_user - " .$dPconfig['ldap_search_user'];
+			echo "search_pass - " .$dPconfig['ldap_search_pass'];
+			
 		}
 	
 	
