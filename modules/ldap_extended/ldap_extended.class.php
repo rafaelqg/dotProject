@@ -11,55 +11,36 @@ require_once $AppUI->getSystemClass('dp');
 
 
 class CLDAPExtended extends CDpObject {
+		//Default values are test purpose only. It is overwrite on constructor.
 		//replace such values from some configuration data
-		//credentials
-		var $ldap_host = "ldap.forumsys.com";
-		var $ldap_port=389;
+		var $ldap_host;
+		var $ldap_port;
+		var $ldap_version;
 		//credatials for login
-		var $ldap_dn = "cn=read-only-admin,dc=example,dc=com";//replace dynamic
-		var $password = "password";//replace for a dynamic value
+		var $ldap_dn;
+		var $ldap_password;
+		var $ldap_search_user;
 		
 		
 		function __construct() {
 			parent::__construct('ldap_extended', 'ldap_extended_id');
-			global $dPconfig;
-			
-			echo "host - " . $dPconfig['ldap_host'];
-			echo "port - " .  $dPconfig['ldap_port'];
-			echo "version - " . $dPconfig['ldap_version'];
-			echo "base_dn - " . $dPconfig['ldap_base_dn'];
-			echo "search_user - " .$dPconfig['ldap_search_user'];
-			echo "search_pass - " .$dPconfig['ldap_search_pass'];
-			
+			global $dPconfig;			
+			$this->ldap_host = $dPconfig['ldap_host'];//"ldap.forumsys.com";
+			$this->ldap_port = $dPconfig['ldap_port'];//"389"
+			$this->ldap_version= $dPconfig['ldap_version'];//"3"
+			$this->ldap_dn =  $dPconfig['ldap_base_dn'];// "cn=read-only-admin,dc=example,dc=com"
+			$this->ldap_search_user= $dPconfig['ldap_search_user'];//"admin"
+			$this->ldap_password = $dPconfig['ldap_search_pass'];//"password"
+		}
+		
+		
+		public function printLDAPParameters(){
+			echo "<br /><pre>";
+			print_r($this);
+			echo "</pre><br />";
 		}
 	
-	
-	
-/*
-  var $ldap_extended_id = NULL;
-  var $user_id = NULL;
-	
-
-
-	
-	
- 
-	function check() {
-	// ensure the integrity of some variables
-		$this->ldap_extended_id = intval($this->ldap_extended_id);
-
-		return NULL; // object is ok
-	}
-
-	function delete($oid = NULL, $history_desc = '', $history_proj = 0) {
-		global $dPconfig;
-	
-	}
-	*/	
-	//SELECT * FROM   information_schema.tables WHERE  TABLE_SCHEMA = 'dotproject_ldap' order by UPDATE_TIME desc LIMIT 0, 1000
-	
-	
-	
+		
 	public function getDotProjectRoles(){
 		$q = new DBQuery();
 		$q->addQuery("value");
@@ -113,7 +94,7 @@ class CLDAPExtended extends CDpObject {
 			$q->addTable("gacl_aro_groups");
 			$q->addWhere("name = '"  . stripslashes($role_name) . "' or value='".stripslashes($role_name)."'");
 			$sql = $q->prepare();
-			echo $sql; 
+			//echo $sql; 
 			$records= db_loadList($sql);
 			foreach($records as $record){
 				$role_id= $record[0];
@@ -190,15 +171,16 @@ class CLDAPExtended extends CDpObject {
 	
 	//based on: https://samjlevy.com/php-ldap-membership/
 	//http://www.forumsys.com/tutorials/integration-how-to/ldap/online-ldap-test-server/)
+	//To be utilized in LDAP when ismemberof (posix) is available
 	public static function get_groups($user) {
 		// Active Directory server
-		$ldap_host = "ldap.forumsys.com";//replace for a dynamic value
-		$ldap_port=389;
+		$ldap_host = $this->ldap_host;//replace for a dynamic value
+		$ldap_port=$this->ldap_port;
 		
 	 
 		// Active Directory user for querying
 		$query_user = $user."@".$ldap_host;
-		$password = "password";//replace for a dynamic value
+		$password = $this->ldap_password;
 		
 		// Active Directory DN, base path for our querying user
 		//$ldap_dn = "cn=read-only-admin,dc=example,dc=com";//replace dynamic
@@ -209,7 +191,7 @@ class CLDAPExtended extends CDpObject {
 		// Connect to AD
 		//$ldap = ldap_connect($ldap_host,$ldap_port) or die("Could not connect to LDAP");
 		$ldap = ldap_connect($ldap_host,$ldap_port) or die("Could not connect to LDAP");
-		ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
+		ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, $this->ldap_version);
 		ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
 		
 		if(ldap_bind($ldap,$ldap_dn,$password)){
@@ -273,35 +255,37 @@ class CLDAPExtended extends CDpObject {
 	paramter group: its identification on LDAP as : "ou=mathematicians,dc=example,dc=com"
 	**/
 	public function getUsersByGroup($group) {
-		// Active Directory server
-
+		$users= array();//return variable. Here will be added all users found on this group
 		// Connect to AD
 		$ldap = ldap_connect($this->ldap_host,$this->ldap_port) or die("Could not connect to LDAP");
-		ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
+		ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, $this->ldap_version);///must be version 3
 		ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
-		
-		if(ldap_bind($ldap,$this->ldap_dn,$this->password)){
-			//echo "Bind LDAP successfully.";
+		if(ldap_bind($ldap,$this->ldap_dn,$this->ldap_password)){
+			echo "<br />Bind LDAP successfully.<br />";
 		}else{
 			die("Could not bind to LDAP");
 		} 
 		
+		//search for queried group
 		// Search AD
+		echo "<br />Looking for LDAP group  \"" . $group . "\"<br />";
 		$results = ldap_search($ldap,$group,"(cn=*)" );
-		$entries = ldap_get_entries($ldap, $results);		
-		//print_r($entries );
-
-		$users= array();
-		// No information found, bad user
-		if($entries['count'] >0){
-		// Get groups and primary group token
-			$output = $entries[0]['uniquemember'];		
-			foreach ($output as $user){
-				$commaPos=strpos($user,",");
-				$userName=substr($user,4,$commaPos-4);
-				array_push($users,$userName);
-			}
-		} 
+		if($results!=""){
+			$entries = ldap_get_entries($ldap, $results);
+			
+			// No information found, bad user
+			if($entries['count'] >0){
+			// Get groups and primary group token
+				$output = $entries[0]['uniquemember'];		
+				foreach ($output as $user){
+					$commaPos=strpos($user,",");
+					$userName=substr($user,4,$commaPos-4);
+					array_push($users,$userName);
+				}
+			} 
+		}else{
+			echo "<br />Group \"".$group ."\" not found on LDAP<br />";
+		}
 		return $users;
 	}
 	

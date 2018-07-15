@@ -6,12 +6,12 @@ $AppUI->savePlace();
 require_once DP_BASE_DIR ."/modules/ldap_extended/ldap_extended.class.php";
 
 $ldapExt= new CLDAPExtended();
-
+$ldapExt->printLDAPParameters();
 $dpRoles=$ldapExt->getDotProjectRoles();
 $users=$ldapExt->getDotProjectUsers();
-echo "Dotproject users:<br />";
+echo "<br />Dotproject users:<br /><pre>";
 print_r($users);
-echo "<br /><hr /><br />";
+echo "</pre><br /><hr /><br />";
 foreach($dpRoles as $role){
 	echo "<br />";
 	echo "Searching for group: ".$role . "<br />";
