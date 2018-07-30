@@ -172,7 +172,7 @@ class CLDAPExtended extends CDpObject {
 	//based on: https://samjlevy.com/php-ldap-membership/
 	//http://www.forumsys.com/tutorials/integration-how-to/ldap/online-ldap-test-server/)
 	//To be utilized in LDAP when ismemberof (posix) is available
-	public static function get_groups($user) {
+	public  function get_groups($user) {
 		// Active Directory server
 		$ldap_host = $this->ldap_host;//replace for a dynamic value
 		$ldap_port=$this->ldap_port;
@@ -183,10 +183,8 @@ class CLDAPExtended extends CDpObject {
 		$password = $this->ldap_password;
 		
 		// Active Directory DN, base path for our querying user
-		//$ldap_dn = "cn=read-only-admin,dc=example,dc=com";//replace dynamic
+		$ldap_dn =$this->ldap_dn;
 		
-		$ldap_dn = "uid=galieleo,dc=example,dc=com";
-		//$ldap_dn = "ou=mathematicians,dc=example,dc=com";
 
 		// Connect to AD
 		//$ldap = ldap_connect($ldap_host,$ldap_port) or die("Could not connect to LDAP");
@@ -201,26 +199,13 @@ class CLDAPExtended extends CDpObject {
 		} 
 		
 		// Search AD
-		$attr = array("OU","CN","DC");
-		//$ldap_dn_group = "ou=mathematicians,dc=example,dc=com";
-		$results = ldap_search($ldap,$ldap_dn,"(cn=*)" );
-		
-		
-		//$results = ldap_search($ldap,$ldap_dn,"(uid=gauss)",  $attr);	
-		
-		
-		
-		//$results = ldap_search($ldap,$ldap_dn,"(samaccountname=$user)",array("memberof","primarygroupid")); //samaccountname	
-		$entries = ldap_get_entries($ldap, $results);		
-		?>
-		<pre>
-		<?php print_r($entries ); ?>
-		</pre>
-		<?php
+		$results = ldap_search($ldap,$ldap_dn,"(samaccountname=$user)",array("memberof","primarygroupid"));
+		$entries = ldap_get_entries($ldap, $results);
 		
 		// No information found, bad user
+		print_r($entries);
 		if($entries['count'] == 0){
-			echo "user not found...";
+			echo "<br />No group found querying for memberof attribute.<br />";
 			return false;
 		} 
 		
@@ -237,7 +222,7 @@ class CLDAPExtended extends CDpObject {
 		
 		// Remove extraneous first entry
 		array_shift($entries2);
-		echo "3";
+		
 		// Loop through and find group with a matching primary group token
 		foreach($entries2 as $e) {
 			if($e['primarygrouptoken'][0] == $token) {
@@ -247,12 +232,12 @@ class CLDAPExtended extends CDpObject {
 				break;
 			}
 		}
-		
+	 
 		return $output;
 	}
 	
 	/**
-	paramter group: its identification on LDAP as : "ou=mathematicians,dc=example,dc=com"
+	parameter group: its identification on LDAP as : "ou=mathematicians,dc=example,dc=com"
 	**/
 	public function getUsersByGroup($group) {
 		$users= array();//return variable. Here will be added all users found on this group
@@ -288,6 +273,5 @@ class CLDAPExtended extends CDpObject {
 		}
 		return $users;
 	}
-	
 	
 }

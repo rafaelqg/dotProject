@@ -4,40 +4,104 @@ if (!defined('DP_BASE_DIR')) {
 }
 $AppUI->savePlace();
 require_once DP_BASE_DIR ."/modules/ldap_extended/ldap_extended.class.php";
-
 $ldapExt= new CLDAPExtended();
-$ldapExt->printLDAPParameters();
-$dpRoles=$ldapExt->getDotProjectRoles();
-$users=$ldapExt->getDotProjectUsers();
-echo "<br />Dotproject users:<br /><pre>";
-print_r($users);
-echo "</pre><br /><hr /><br />";
-foreach($dpRoles as $role){
-	echo "<br />";
-	echo "Searching for group: ".$role . "<br />";
-	$usersInGroup=$ldapExt->getUsersByGroup("ou=$role,dc=example,dc=com");//line has to be adapted to get group identification from some configuration data
-	if(count($usersInGroup)>0){
-	//remove role from all users, ensuring users excluded from group will not remain with it.
-	foreach($users as $user){
-		$ldapExt->deleteRoleFromUser($user,$role);
-	}
-	//add the role for all users in group
-	echo "Group members: ". print_r ($usersInGroup) . "<br />";
-	foreach($usersInGroup as $user){
-		echo "Checking user: $user";
-		if(in_array($user, $users)){//check if group member is a dotProject user
-			echo "(on group)";
-			$ldapExt->addRoleToUser($user, $role);
-		}else{
-			echo "(not on group)";
-		}
-		echo "<br />";
-	}
-	}else{
-		echo "No members found on this group.";
-	}
-	echo "<br /><hr /><br />";
-}
+?>
+<br />
+<h1 align="center">
+LDAP Extended Admin console
+</h1>
+<br /><br />
+<table class="tbl" align="center" style="width:80%;text-align:left" cellpadding="5">
+<tr>
+	<th>
+	LDAP HOST
+	</th>
+	<td>
+	<?php echo $ldapExt->ldap_host ?>
+	</td>
+</tr>
+
+<tr>
+	<th>
+	LDAP PORT
+	</th>
+	
+	<td>
+	<?php echo $ldapExt->ldap_port ?>
+	</td>
+</tr>
+
+<tr>
+	<th>
+	LDAP VERSION
+	</th>
+	
+	<td>
+	<?php echo $ldapExt->ldap_version ?>
+	</td>
+</tr>
+
+<tr>
+	<th>
+	LDAP CONNECTION USER
+	</th>
+	
+	<td>
+	<?php echo $ldapExt->ldap_search_user ?>
+	</td>
+</tr>
+
+<tr>
+	<th>
+	LDAP CONNECTION PASSWORD
+	</th>
+	
+	<td>
+	<?php echo $ldapExt->ldap_password ?>
+	</td>
+</tr>
+
+<tr>
+	<th>
+	LDAP DN
+	</th>
+	
+	<td>
+	<?php echo $ldapExt->ldap_dn ?>
+	</td>
+</tr>
+
+</table>
 
 
- ?>
+<br /><br /><br />
+
+<table class="tbl" align="center" style="width:80%;text-align:left" cellpadding="5">
+	<tr>
+			<th colspan="2" align="center">
+			Process LDAP Synchronization
+			</th>
+	</tr>
+	<tr>
+		<th>
+			Group membership based:
+		</th>
+		<th>
+			Memberof attribute based:
+		</th>
+	</tr>
+	<tr>
+		<td align="center">
+			<form action="?m=ldap_extended" method="post">
+				 <input type="hidden" name="dosql" value="do_ldap_group_membership_based" action="?m=ldap_extended" method="post" />
+				<input type="submit" value="Synchronize" class="button" />
+			</form>
+		</td>
+		<td align="center">
+		<form action="?m=ldap_extended" method="post">
+			<input type="hidden" name="dosql" value="do_ldap_memberof_based"  />
+			<input type="submit" value="Synchronize" class="button" />
+		</form>
+		</td>
+	</tr>
+</table>
