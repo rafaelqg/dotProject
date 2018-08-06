@@ -191,7 +191,7 @@ class CLDAPExtended extends CDpObject {
 		$ldap = ldap_connect($ldap_host,$ldap_port) or die("Could not connect to LDAP");
 		ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, $this->ldap_version);
 		ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
-		
+
 		if(ldap_bind($ldap,$ldap_dn,$password)){
 			echo "Bind LDAP successfully.";
 		}else{
@@ -245,7 +245,14 @@ class CLDAPExtended extends CDpObject {
 		$ldap = ldap_connect($this->ldap_host,$this->ldap_port) or die("Could not connect to LDAP");
 		ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, $this->ldap_version);///must be version 3
 		ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
-		if(ldap_bind($ldap,$this->ldap_dn,$this->ldap_password)){
+		echo "<br/>Variables:";
+		echo "<br/>ldap_host: {$this->ldap_host}";
+		echo "<br/>ldap_port: {$this->ldap_port}";
+		echo "<br/>ldap_version: {$this->ldap_version}";
+		echo "<br/>ldap_dn: {$this->ldap_dn}";
+		echo "<br/>ldap_password: {$this->ldap_password}";
+		//if(ldap_bind($ldap,$this->ldap_dn,$this->ldap_password)){
+		if(ldap_bind($ldap)){
 			echo "<br />Bind LDAP successfully.<br />";
 		}else{
 			die("Could not bind to LDAP");
