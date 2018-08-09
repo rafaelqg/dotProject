@@ -184,7 +184,7 @@ class CLDAPExtended extends CDpObject {
 		
 		// Active Directory DN, base path for our querying user
 		$ldap_dn =$this->ldap_dn;
-		
+		$ldap_search_user = $ldapExt->ldap_search_user;
 
 		// Connect to AD
 		//$ldap = ldap_connect($ldap_host,$ldap_port) or die("Could not connect to LDAP");
@@ -192,14 +192,14 @@ class CLDAPExtended extends CDpObject {
 		ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, $this->ldap_version);
 		ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
 
-		if(ldap_bind($ldap,$ldap_dn,$password)){
+		if(ldap_bind($ldap,$ldap_search_user,$password)){
 			echo "Bind LDAP successfully.";
 		}else{
 			die("Could not bind to LDAP");
 		} 
 		
-		// Search AD
-		$results = ldap_search($ldap,$ldap_dn,"(samaccountname=$user)",array("memberof","primarygroupid"));
+		// Search AD based on filter eg "DP_*" "DP_it" -> "it" role
+		$results = ldap_search($ldap,$ldap_dn,"(uid=$user)",array("memberof"));
 		$entries = ldap_get_entries($ldap, $results);
 		
 		// No information found, bad user
@@ -250,9 +250,9 @@ class CLDAPExtended extends CDpObject {
 		echo "<br/>ldap_port: {$this->ldap_port}";
 		echo "<br/>ldap_version: {$this->ldap_version}";
 		echo "<br/>ldap_dn: {$this->ldap_dn}";
-		echo "<br/>ldap_password: {$this->ldap_password}";
-		//if(ldap_bind($ldap,$this->ldap_dn,$this->ldap_password)){
-		if(ldap_bind($ldap)){
+		echo "<br/>ldap_pasSword: {$this->ldap_password}";
+		if(ldap_bind($ldap,$ldapExt->ldap_search_user,$this->ldap_password)){
+		//if(ldap_bind($ldap)){
 			echo "<br />Bind LDAP successfully.<br />";
 		}else{
 			die("Could not bind to LDAP");
