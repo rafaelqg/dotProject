@@ -22,12 +22,13 @@ echo "</pre><br /><hr /><br />";
 		//$TEST_ldap_search_output=array ( 0 => array ("memberof" => array ( 0 => "cn=palo_it_admin,ou=Groups,dc=debortoli,dc=private",1 => "cn=DP_it,ou=Groups,dc=debortoli,dc=private",2 => "cn=risk_management,ou=Groups,dc=debortoli,dc=private", 3 => "cn=DP_quality,ou=Groups,dc=debortoli,dc=private" ))); 
 		//print_r($TEST_ldap_search_output);
 		$prefix="DP_";
-		$groups=getUserDPRoles($prefix,$TEST_ldap_search_output);
+		//$groups=getUserDPRoles($prefix,$TEST_ldap_search_output);
+		$groups=getUserDPRoles($prefix,$ldap_search_output);
 	
 		if(sizeof($groups)==0 || !$groups){
 			echo "<br />No group found on LDAP<br/>";
 		}else{
-			echo "Groups<br />";
+			echo "<br/>Groups<br />";
 			print_r($groups);
 			foreach($groups as $group){
 				$ldapExt->addRoleToUser($user, $group);
@@ -38,9 +39,13 @@ die();
 
 
 function getUserDPRoles($prefix,$ldap_search_output){								
-	$member_of_list=$ldap_search_output[0]["memberof"];
+	//foreach($ldap_search_output as $i){
+	//	echo "<br/>foo: ".$i;
+	//}
+	//echo "$ldap_search_output: ".$ldap_search_output;
+	//$member_of_list=$ldap_search_output;
 	$roles=array();
-	foreach($member_of_list as $ldap_member_of_string){
+	foreach($ldap_search_output as $ldap_member_of_string){
 		//echo $ldap_member_of_string;
 		$posCN=strpos($ldap_member_of_string,"cn=");
 		//echo "POS CN:".$posCN;
@@ -54,7 +59,7 @@ function getUserDPRoles($prefix,$ldap_search_output){
 				if($posPrefix!==false){
 					
 					$dpRoleName=substr ( $cn, $posPrefix, strlen($cn));
-					//echo "CN: " . $dpRoleName;
+					echo "<br/>CN: " . $dpRoleName;
 					array_push($roles,$dpRoleName);
 				}
 			}
