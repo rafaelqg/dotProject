@@ -6,6 +6,7 @@ global $AppUI;
 require_once $AppUI->getModuleClass('contacts');
 require_once $AppUI->getModuleClass('admin');
 require_once $AppUI->getSystemClass('dp');
+require_once DP_BASE_DIR ."/modules/system/roles/roles.class.php";
 
 
 
@@ -40,6 +41,13 @@ class CLDAPExtended extends CDpObject {
 			echo "</pre><br />";
 		}
 	
+	public function createDPRole($roleName){ 
+		$role = new CRole();
+		$role->role_name = $roleName;
+		$role->role_description = $roleName;
+		$role->store();
+		return $role->role_id;
+	}
 		
 	public function getDotProjectRoles(){
 		$q = new DBQuery();
@@ -53,6 +61,8 @@ class CLDAPExtended extends CDpObject {
 		}
 		return $roles;
 	}
+	
+
 	
 	public function getDotProjectUsers(){
 		$q = new DBQuery();
@@ -107,14 +117,9 @@ class CLDAPExtended extends CDpObject {
 		}	
 	}
 	
-	public function addRoleToUser($user_name, $role_name){
 	
-		global $AppUI;
-		//SELECT group_id, aro_id FROM dotproject_ldap.dotp_gacl_groups_aro_map;
-		//SELECT id, name FROM dotproject_ldap.dotp_gacl_aro;
-		//SELECT id,name,value FROM dotproject_ldap.dotp_gacl_aro_groups;
-		
-		$groupdId=-1;
+	private function getRoleId($role_name){
+		$groupdId = -1;
 		$q = new DBQuery();
 		$q->addQuery("id");
 		$q->addTable("gacl_aro_groups");
@@ -124,6 +129,23 @@ class CLDAPExtended extends CDpObject {
 		foreach($records as $record){
 			$groupdId= $record[0];
 		 }
+		 return $groupdId;
+	}
+	
+	public function addRoleToUser($user_name, $role_name){
+	
+		global $AppUI;
+		//SELECT group_id, aro_id FROM dotproject_ldap.dotp_gacl_groups_aro_map;
+		//SELECT id, name FROM dotproject_ldap.dotp_gacl_aro;
+		//SELECT id,name,value FROM dotproject_ldap.dotp_gacl_aro_groups;
+		
+		$groupdId=$this->getRoleId($role_name);
+		if($groupdId==-1){		
+			$ldapExt->createDPRole($role_name);
+			$groupdId = $this->getRoleId($role_name);
+			echo "<br />CREATED ROLE: $role_name (ID: $groupdId) <br/>";
+		}
+		 
 			
 		$userIdPermissions=-1;
 		$user_id=-1;
@@ -193,11 +215,12 @@ class CLDAPExtended extends CDpObject {
 		ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
 
 		if(ldap_bind($ldap,$ldap_search_user,$password)){
-			echo "Bind LDAP successfully.";
+			echo "<br />Bind LDAP successfully.<br />";
+		}else if (ldap_bind($ldap)) {
+			echo "<br />Bind LDAP successfully.<br />";
 		}else{
 			die("Could not bind to LDAP");
-		} 
-		
+		}
 		// Search AD based on filter eg "DP_*" "DP_it" -> "it" role
 		$results = ldap_search($ldap,$ldap_dn,"(uid=$user)",array("memberof"));
 		$entries = ldap_get_entries($ldap, $results);
@@ -239,6 +262,7 @@ class CLDAPExtended extends CDpObject {
 	/**
 	parameter group: its identification on LDAP as : "ou=mathematicians,dc=example,dc=com"
 	**/
+	
 	public function getUsersByGroup($group) {
 		$users= array();//return variable. Here will be added all users found on this group
 		// Connect to AD
@@ -252,7 +276,8 @@ class CLDAPExtended extends CDpObject {
 		echo "<br/>ldap_dn: {$this->ldap_dn}";
 		echo "<br/>ldap_pasSword: {$this->ldap_password}";
 		if(ldap_bind($ldap,$ldapExt->ldap_search_user,$this->ldap_password)){
-		//if(ldap_bind($ldap)){
+			echo "<br />Bind LDAP successfully.<br />";
+		}else if (ldap_bind($ldap)) {
 			echo "<br />Bind LDAP successfully.<br />";
 		}else{
 			die("Could not bind to LDAP");
