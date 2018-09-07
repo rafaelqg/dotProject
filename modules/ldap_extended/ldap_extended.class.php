@@ -141,7 +141,8 @@ class CLDAPExtended extends CDpObject {
 		
 		$groupdId=$this->getRoleId($role_name);
 		if($groupdId==-1){		
-			$ldapExt->createDPRole($role_name);
+			//$ldapExt->createDPRole($role_name);
+			$this->createDPRole($role_name);
 			$groupdId = $this->getRoleId($role_name);
 			echo "<br />CREATED ROLE: $role_name (ID: $groupdId) <br/>";
 		}
@@ -226,7 +227,7 @@ class CLDAPExtended extends CDpObject {
 		$entries = ldap_get_entries($ldap, $results);
 		
 		// No information found, bad user
-		print_r($entries);
+		//print_r($entries);
 		if($entries['count'] == 0){
 			echo "<br />No group found querying for memberof attribute.<br />";
 			return false;
@@ -240,22 +241,27 @@ class CLDAPExtended extends CDpObject {
 		array_shift($output);
 		
 		// We need to look up the primary group, get list of all groups
-		$results2 = ldap_search($ldap,$ldap_dn,"(objectcategory=group)",array("distinguishedname","primarygrouptoken"));
-		$entries2 = ldap_get_entries($ldap, $results2);
-		
-		// Remove extraneous first entry
-		array_shift($entries2);
-		
-		// Loop through and find group with a matching primary group token
-		foreach($entries2 as $e) {
-			if($e['primarygrouptoken'][0] == $token) {
-				// Primary group found, add it to output array
-				$output[] = $e['distinguishedname'][0];
-				// Break loop
-				break;
-			}
-		}
+		//$results2 = ldap_search($ldap,$ldap_dn,"(objectcategory=group)",array("distinguishedname","primarygrouptoken"));
+		$results2 = ldap_search($ldap,$ldap_dn,"(&(objectclass=posixGroup)(cn=DP_*))",array("distinguishedname","primarygrouptoken"));
+		echo "<br />Filtered Group Search:<br />";
+		print_r($results2);
+		echo "<br />";
+		//$entries2 = ldap_get_entries($ldap, $results2);
+		//
+		//// Remove extraneous first entry
+		//array_shift($entries2);
+		//
+		//// Loop through and find group with a matching primary group token
+		//foreach($entries2 as $e) {
+		//	if($e['primarygrouptoken'][0] == $token) {
+		//		// Primary group found, add it to output array
+		//		$output[] = $e['distinguishedname'][0];
+		//		// Break loop
+		//		break;
+		//	}
+		//}
 	 
+		//print_r($output);
 		return $output;
 	}
 	
