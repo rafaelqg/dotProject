@@ -9,7 +9,7 @@ $ldapExt= new CLDAPExtended();
 //$ldapExt->printLDAPParameters();
 $dpRoles=$ldapExt->getDotProjectRoles();
 $users=$ldapExt->getDotProjectUsers();
-
+$prefix=$ldapExt->ldap_dp_role_prefix;//"DP_";
 ?>
 Processing LDAP membership based:<br /><br />
 <?php
@@ -23,10 +23,8 @@ foreach($dpRoles as $role){
 	echo "Searching for group: ".$role . "<br />";
 	$usersInGroup=$ldapExt->getUsersByGroup("ou=$role,dc=example,dc=com");//line has to be adapted to get group identification from some configuration data
 	if(count($usersInGroup)>0){ 
-		//remove role from all users, ensuring users excluded from group will not remain with it.
-		foreach($users as $user){
-			$ldapExt->deleteRoleFromUser($user,$role);
-		}
+		//remove LDAP roles from users, ensuring users excluded from group will not remain with it.
+		$ldapExt->deleteRolesNotOnLDAPAnymore($user,$prefix);
 		//add the role for all users in group
 		echo "Group members: ". print_r ($usersInGroup) . "<br />";
 		foreach($usersInGroup as $user){

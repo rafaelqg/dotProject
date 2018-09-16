@@ -71,6 +71,46 @@ LDAP Extended Admin console
 	</td>
 </tr>
 
+<tr>
+	<th>
+	Prefix
+	</th>
+	
+	<td>
+	<?php echo $ldapExt->ldap_dp_role_prefix ?>
+	</td>
+</tr>
+
+<tr>
+	<th>
+	LDAP variable to get group list
+	</th>
+	
+	<td>
+	<?php echo $ldapExt->ldap_variable_for_retrieve_roles_list ?>
+	</td>
+</tr>
+
+<tr>
+	<th>
+	Dotproject template role
+	</th>
+	
+	<td>
+	<?php echo $ldapExt->ldap_template_role_for_copy_permissions ?>
+	</td>
+</tr>
+
+<tr>
+	<th>
+	LDAP query for retrieving groups
+	</th>
+	
+	<td>
+	<?php echo $ldapExt->ldap_query_for_select_dotproject_groups ?>
+	</td>
+</tr>
+
 </table>
 
 

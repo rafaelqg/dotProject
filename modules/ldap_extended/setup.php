@@ -21,7 +21,7 @@ if (@$a == 'setup') {
 class CSetupLDAPExtended {
 
      function install() {
-		 /*
+		/*
 		$q = new DBQuery();
 		$q->createTable('ldap_extended');
 		$q->createDefinition("");

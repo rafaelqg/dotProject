@@ -22,6 +22,11 @@ class CLDAPExtended extends CDpObject {
 		var $ldap_password;
 		var $ldap_search_user;
 		
+		var $ldap_dp_role_prefix;
+		var $ldap_variable_for_retrieve_roles_list;
+		var $ldap_template_role_for_copy_permissions;
+		var $ldap_query_for_select_dotproject_groups; 
+		
 		
 		function __construct() {
 			parent::__construct('ldap_extended', 'ldap_extended_id');
@@ -32,6 +37,59 @@ class CLDAPExtended extends CDpObject {
 			$this->ldap_dn =  $dPconfig['ldap_base_dn'];// "cn=read-only-admin,dc=example,dc=com"
 			$this->ldap_search_user= $dPconfig['ldap_search_user'];//"admin"
 			$this->ldap_password = $dPconfig['ldap_search_pass'];//"password"
+			
+			$this->ldap_dp_role_prefix=$dPconfig['ldap_dp_role_prefix'];//DP_
+			$this->ldap_variable_for_retrieve_roles_list=$dPconfig['ldap_variable_for_retrieve_roles_list'];//memberof 
+			$this->ldap_template_role_for_copy_permissions=$dPconfig['ldap_template_role_for_copy_permissions'];//normal
+			$this->ldap_query_for_select_dotproject_groups=$dPconfig['ldap_query_for_select_dotproject_groups'];//(&(objectclass=posixGroup)(cn=DP_*))
+			
+			//create config in case does not exist
+			if(!isset($dPconfig['ldap_dp_role_prefix'])){
+				$q = new DBQuery();
+				$q->addTable('config');
+				$q->addInsert('config_name', 'ldap_dp_role_prefix');
+				$q->addInsert('config_value', 'DP_');
+				$q->addInsert('config_group', 'ldap');
+				$q->addInsert('config_type', 'text');
+				$q->exec();
+				$q->clear();
+			}
+			
+			if(!isset($dPconfig['ldap_variable_for_retrieve_roles_list'])){
+				$q = new DBQuery();
+				$q->addTable('config');
+				$q->addInsert('config_name', 'ldap_variable_for_retrieve_roles_list');
+				$q->addInsert('config_value', 'memberof');
+				$q->addInsert('config_group', 'ldap');
+				$q->addInsert('config_type', 'text');
+				$q->exec();
+				$q->clear();
+			}
+			
+			if(!isset($dPconfig['ldap_template_role_for_copy_permissions'])){
+				$q = new DBQuery();
+				$q->addTable('config');
+				$q->addInsert('config_name', 'ldap_template_role_for_copy_permissions');
+				$q->addInsert('config_value', 'normal');
+				$q->addInsert('config_group', 'ldap');
+				$q->addInsert('config_type', 'text');
+				$q->exec();
+				$q->clear();
+			}
+			
+			if(!isset($dPconfig['ldap_query_for_select_dotproject_groups'])){
+				$q = new DBQuery();
+				$q->addTable('config');
+				$q->addInsert('config_name', 'ldap_query_for_select_dotproject_groups');
+				$q->addInsert('config_value', '(&(objectclass=posixGroup)(cn=DP_*))');
+				$q->addInsert('config_group', 'ldap');
+				$q->addInsert('config_type', 'text');
+				$q->exec();
+				$q->clear();
+			}
+			
+			
+			
 		}
 		
 		
@@ -40,6 +98,54 @@ class CLDAPExtended extends CDpObject {
 			print_r($this);
 			echo "</pre><br />";
 		}
+		
+		
+		public function deleteRolesNotOnLDAPAnymore($userName,$dpRolesPrefix){
+			$userRoles=$this->getUserDotProjectRoles($userName);
+			foreach($userRoles as $role){
+				if( strpos($role,$dpRolesPrefix) !== FALSE){
+					echo "Removing LDAP role ($role) from user ($userName)";
+					$this->deleteRoleFromUser($userName,$role);
+				}
+			}		
+		}
+		
+		
+		public function getUserDotProjectRoles($userName){
+			/*
+			SELECT aro.name, group_id, aro_id, g.name FROM dotproject_ldap.dotp_gacl_groups_aro_map aro_map
+			inner join dotp_gacl_aro aro on aro.id = aro_map.aro_id 
+			inner join dotp_gacl_aro_groups g on g.id = aro_map.group_id
+			where aro.name="gauss"
+			*/
+
+			$q = new DBQuery();
+			$q->addQuery("aro.name, group_id, aro_id, g.name");
+			$q->addTable("gacl_groups_aro_map","aro_map");
+			
+			$q->addJoin('gacl_aro', 'aro', 'aro.id = aro_map.aro_id');
+			$q->addJoin('gacl_aro_groups', 'g', 'g.id = aro_map.group_id');
+			
+			$q->addWhere("aro.name = '"  . stripslashes($userName) . "'");
+
+			$sql = $q->prepare();
+			$records= db_loadList($sql);
+			$roles=array();
+			foreach($records as $record){
+				array_push($roles,$record[3]);
+			}
+			return $roles;
+		}
+		
+		
+    //SELECT table_name,update_time FROM information_schema.tables where TABLE_SCHEMA = "dotproject_ldap" order by update_time desc
+	function copyRolePermissions($roleA,$roleB){
+		//SELECT * FROM dotproject_ldap.dotp_gacl_aro_groups; id => roleName (name)
+		//SELECT * FROM dotproject_ldap.dotp_gacl_aro_groups_map => groupId => ACL Id
+		  //inserir novas linhas nesta tabela dotp_gacl_aro_groups_map
+		  
+	   //SELECT * FROM dotproject_ldap.dotp_dotpermissions; Espera-se que não precise fazer nada
+	}
 	
 	public function createDPRole($roleName){ 
 		$role = new CRole();
@@ -223,7 +329,7 @@ class CLDAPExtended extends CDpObject {
 			die("Could not bind to LDAP");
 		}
 		// Search AD based on filter eg "DP_*" "DP_it" -> "it" role
-		$results = ldap_search($ldap,$ldap_dn,"(uid=$user)",array("memberof"));
+		$results = ldap_search($ldap,$ldap_dn,"(uid=$user)",array($this->ldap_variable_for_retrieve_roles_list));//"memberof"
 		$entries = ldap_get_entries($ldap, $results);
 		
 		// No information found, bad user
@@ -234,7 +340,7 @@ class CLDAPExtended extends CDpObject {
 		} 
 		
 		// Get groups and primary group token
-		$output = $entries[0]['memberof'];
+		$output = $entries[0][$this->ldap_variable_for_retrieve_roles_list];//memberof
 		$token = $entries[0]['primarygroupid'][0];
 		
 		// Remove extraneous first entry
@@ -242,7 +348,7 @@ class CLDAPExtended extends CDpObject {
 		
 		// We need to look up the primary group, get list of all groups
 		//$results2 = ldap_search($ldap,$ldap_dn,"(objectcategory=group)",array("distinguishedname","primarygrouptoken"));
-		$results2 = ldap_search($ldap,$ldap_dn,"(&(objectclass=posixGroup)(cn=DP_*))",array("distinguishedname","primarygrouptoken"));
+		$results2 = ldap_search($ldap,$ldap_dn,$this->ldap_query_for_select_dotproject_groups,array("distinguishedname","primarygrouptoken"));//"(&(objectclass=posixGroup)(cn=DP_*))"
 		echo "<br />Filtered Group Search:<br />";
 		print_r($results2);
 		echo "<br />";
