@@ -397,7 +397,10 @@ class CLDAPExtended extends CDpObject {
 		//$results2 = ldap_search($ldap,$ldap_dn,"(objectcategory=group)",array("distinguishedname","primarygrouptoken"));
 		$results2 = ldap_search($ldap,$ldap_dn,$this->ldap_query_for_select_dotproject_groups,array("distinguishedname","primarygrouptoken"));//"(&(objectclass=posixGroup)(cn=DP_*))"
 		echo "<br />Filtered Group Search:<br />";
-		print_r($results2);
+		print_r($results2); 
+		
+		//to-do: format results2 to contains a single field with $e['distinguishedname'][0] 
+		
 		echo "<br />";
 		//$entries2 = ldap_get_entries($ldap, $results2);
 		//
