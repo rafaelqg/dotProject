@@ -139,12 +139,54 @@ class CLDAPExtended extends CDpObject {
 		
 		
     //SELECT table_name,update_time FROM information_schema.tables where TABLE_SCHEMA = "dotproject_ldap" order by update_time desc
+	//roleA: new created role; roleB: default role for copying permissions
 	function copyRolePermissions($roleA,$roleB){
 		//SELECT * FROM dotproject_ldap.dotp_gacl_aro_groups; id => roleName (name)
-		//SELECT * FROM dotproject_ldap.dotp_gacl_aro_groups_map => groupId => ACL Id
-		  //inserir novas linhas nesta tabela dotp_gacl_aro_groups_map
-		  
+	    //SELECT * FROM dotproject_ldap.dotp_gacl_aro_groups_map => groupId => ACL Id
+		//inserir novas linhas nesta tabela dotp_gacl_aro_groups_map  
 	   //SELECT * FROM dotproject_ldap.dotp_dotpermissions; Espera-se que não precise fazer nada
+		
+		
+		$q = new DBQuery();
+		$q->addQuery("id");
+		$q->addTable("gacl_aro_groups");
+		$q->addWhere("value = '"  . $roleA . "'");
+		$sql = $q->prepare();
+		$records= db_loadList($sql);
+		$idRoleA=0;
+		foreach($records as $record){
+			$idRoleA=$record[0];
+		}
+		//echo "Role A: ". $idRoleA;
+		$q = new DBQuery();
+		$q->addQuery("id");
+		$q->addTable("gacl_aro_groups");
+		$q->addWhere("value = '"  . $roleB . "'");
+		$sql = $q->prepare();
+		$records= db_loadList($sql);
+		$idRoleB=0;
+		foreach($records as $record){
+			$idRoleB=$record[0];
+		}
+		//echo "Role B: ". $idRoleB;
+		//SELECT acl FROM dotproject_ldap.dotp_gacl_aro_groups_map where group_id=
+		
+		$q = new DBQuery();
+		$q->addQuery("acl_id");
+		$q->addTable("gacl_aro_groups_map");
+		$q->addWhere("group_id = "  . $idRoleB . "");
+		$sql = $q->prepare();
+		$records= db_loadList($sql);
+		$idRoleB=0;
+		foreach($records as $record){
+			$acl_id=$record[0];
+			$q = new DBQuery();
+			$q->addTable('gacl_aro_groups_map');
+			$q->addInsert('acl_id', $acl_id);
+			$q->addInsert('group_id', $idRoleA);
+			$q->exec();
+			//echo "<br/>permission inserted<br/>";
+		}
 	}
 	
 	public function createDPRole($roleName){ 
@@ -251,6 +293,11 @@ class CLDAPExtended extends CDpObject {
 			$this->createDPRole($role_name);
 			$groupdId = $this->getRoleId($role_name);
 			echo "<br />CREATED ROLE: $role_name (ID: $groupdId) <br/>";
+			$defaultPermissions=$dPconfig['ldap_template_role_for_copy_permissions'];
+			if($defaultPermissions==null || $defaultPermissions==""){
+				$defaultPermissions="normal";
+			}
+			$this->copyRolePermissions($role_name,$defaultPermissions);
 		}
 		 
 			
