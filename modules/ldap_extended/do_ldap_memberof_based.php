@@ -62,7 +62,6 @@ function getUserDPRoles($prefix,$ldap_search_output){
 					//echo "CN:". $cn . "::"; 
 					$posPrefix=strpos($cn,$prefix);
 					if($posPrefix!==false){
-						
 						$dpRoleName=substr ( $cn, $posPrefix, strlen($cn));
 						echo "<br/>CN: " . $dpRoleName;
 						array_push($roles,$dpRoleName);

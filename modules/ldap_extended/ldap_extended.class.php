@@ -38,12 +38,23 @@ class CLDAPExtended extends CDpObject {
 			$this->ldap_search_user= $dPconfig['ldap_search_user'];//"admin"
 			$this->ldap_password = $dPconfig['ldap_search_pass'];//"password"
 			
-			$this->ldap_dp_role_prefix=$dPconfig['ldap_dp_role_prefix'];//DP_
+			
 			$this->ldap_variable_for_retrieve_roles_list=$dPconfig['ldap_variable_for_retrieve_roles_list'];//memberof 
 			$this->ldap_template_role_for_copy_permissions=$dPconfig['ldap_template_role_for_copy_permissions'];//normal
 			$this->ldap_query_for_select_dotproject_groups=$dPconfig['ldap_query_for_select_dotproject_groups'];//(&(objectclass=posixGroup)(cn=DP_*))
 			
+			$this->ldap_dp_role_prefix=""; //DP_
+			
+			$posCN=strpos($this->ldap_query_for_select_dotproject_groups,"cn=",0);
+			$posWildCard=strpos($this->ldap_query_for_select_dotproject_groups,"*",$posCN);
+			if($posCN!==false && $posWildCard!==false){ 
+					$len=$posWildCard-($posCN+3);
+					$this->ldap_dp_role_prefix=substr ($this->ldap_query_for_select_dotproject_groups, $posCN+3, $len);
+			} 
+
+			
 			//create config in case does not exist
+			/*
 			if(!isset($dPconfig['ldap_dp_role_prefix'])){
 				$q = new DBQuery();
 				$q->addTable('config');
@@ -54,6 +65,7 @@ class CLDAPExtended extends CDpObject {
 				$q->exec();
 				$q->clear();
 			}
+			*/
 			
 			if(!isset($dPconfig['ldap_variable_for_retrieve_roles_list'])){
 				$q = new DBQuery();
@@ -61,10 +73,62 @@ class CLDAPExtended extends CDpObject {
 				$q->addInsert('config_name', 'ldap_variable_for_retrieve_roles_list');
 				$q->addInsert('config_value', 'memberof');
 				$q->addInsert('config_group', 'ldap');
-				$q->addInsert('config_type', 'text');
+				$q->addInsert('config_type', 'select');
 				$q->exec();
 				$q->clear();
 			}
+			
+			//fix retrieve_roles_list select for config
+			$q = new DBQuery();
+			$q->addQuery("config_id");
+			$q->addTable("config");
+			$q->addWhere("config_name='ldap_variable_for_retrieve_roles_list'");
+			$sql = $q->prepare();
+			$records= db_loadList($sql);
+			$configId=NULL;
+			foreach($records as $record){
+				$configId=$record[0];
+			}
+			//fix type to select
+			
+			$q = new DBQuery();
+			$q->addQuery("config_id");
+			$q->addTable("config");
+			$q->addWhere("config_name='ldap_variable_for_retrieve_roles_list' and config_type='select'");
+			$sql = $q->prepare();
+			$records= db_loadList($sql);
+			if(sizeof($records)==0){			
+				$q = new DBQuery();
+				$q->addTable('config');
+				$q->addUpdate('config_type', 'select');
+				$q->addWhere("config_name=ldap_variable_for_retrieve_roles_list");
+				$q->exec();
+				$q->clear();
+			}
+			
+			//fix options to select
+			$q = new DBQuery();
+			$q->addQuery("config_list_id");
+			$q->addTable("config_list");
+			$q->addWhere("config_id=$configId");
+			$sql = $q->prepare();
+			$records= db_loadList($sql);
+			if(sizeof($records)==0){
+				$q = new DBQuery();
+				$q->addTable('config_list');
+				$q->addInsert('config_id', $configId);
+				$q->addInsert('config_list_name', 'memberOf');
+				$q->exec();
+				$q->clear();
+				
+				$q = new DBQuery();
+				$q->addTable('config_list');
+				$q->addInsert('config_id', $configId);
+				$q->addInsert('config_list_name', 'groupMembership');
+				$q->exec();
+				$q->clear();
+			}
+			
 			
 			if(!isset($dPconfig['ldap_template_role_for_copy_permissions'])){
 				$q = new DBQuery();

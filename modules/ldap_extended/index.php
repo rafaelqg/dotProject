@@ -71,15 +71,7 @@ LDAP Extended Admin console
 	</td>
 </tr>
 
-<tr>
-	<th>
-	Prefix
-	</th>
-	
-	<td>
-	<?php echo $ldapExt->ldap_dp_role_prefix ?>
-	</td>
-</tr>
+
 
 <tr>
 	<th>
@@ -111,6 +103,16 @@ LDAP Extended Admin console
 	</td>
 </tr>
 
+<tr>
+	<th>
+	Prefix
+	</th>
+	
+	<td>
+	<?php echo $ldapExt->ldap_dp_role_prefix ?>
+	</td>
+</tr>
+
 </table>
 
 
@@ -123,25 +125,22 @@ LDAP Extended Admin console
 			</th>
 	</tr>
 	<tr>
-		<th>
-			Group membership based:
-		</th>
-		<th>
-			Memberof attribute based:
-		</th>
-	</tr>
-	<tr>
-		<td align="center">
+		<?php if(strtolower($ldapExt->ldap_variable_for_retrieve_roles_list)!="memberof"){ ?>
+			<td align="center" colspan="2" >
+				<form action="?m=ldap_extended" method="post">
+					 <input type="hidden" name="dosql" value="do_ldap_group_membership_based" action="?m=ldap_extended" method="post" />
+					<input type="submit" value="Synchronize" class="button" />
+					<br /><br /><div>* Synchronize method: GroupMembership</div>
+				</form>
+			</td>
+		<?php }else { ?> 
+			<td align="center" colspan="2" >
 			<form action="?m=ldap_extended" method="post">
-				 <input type="hidden" name="dosql" value="do_ldap_group_membership_based" action="?m=ldap_extended" method="post" />
+				<input type="hidden" name="dosql" value="do_ldap_memberof_based"  />
 				<input type="submit" value="Synchronize" class="button" />
+				<br /><br /><div>*Synchronize method: memberOf</div>
 			</form>
-		</td>
-		<td align="center">
-		<form action="?m=ldap_extended" method="post">
-			<input type="hidden" name="dosql" value="do_ldap_memberof_based"  />
-			<input type="submit" value="Synchronize" class="button" />
-		</form>
-		</td>
+			</td>
+		<?php } ?>
 	</tr>
 </table>
