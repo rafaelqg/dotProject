@@ -39,7 +39,7 @@ class CLDAPExtended extends CDpObject {
 			$this->ldap_password = $dPconfig['ldap_search_pass'];//"password"
 			
 			
-			$this->ldap_variable_for_retrieve_roles_list=$dPconfig['ldap_variable_for_retrieve_roles_list'];//memberof 
+			$this->ldap_variable_for_retrieve_roles_list=strtolower($dPconfig['ldap_variable_for_retrieve_roles_list']);//memberof 
 			$this->ldap_template_role_for_copy_permissions=$dPconfig['ldap_template_role_for_copy_permissions'];//normal
 			$this->ldap_query_for_select_dotproject_groups=$dPconfig['ldap_query_for_select_dotproject_groups'];//(&(objectclass=posixGroup)(cn=DP_*))
 			
@@ -101,7 +101,7 @@ class CLDAPExtended extends CDpObject {
 				$q = new DBQuery();
 				$q->addTable('config');
 				$q->addUpdate('config_type', 'select');
-				$q->addWhere("config_name=ldap_variable_for_retrieve_roles_list");
+				$q->addWhere("config_name='ldap_variable_for_retrieve_roles_list'");
 				$q->exec();
 				$q->clear();
 			}
@@ -451,7 +451,7 @@ class CLDAPExtended extends CDpObject {
 		} 
 		
 		// Get groups and primary group token
-		$output = $entries[0][$this->ldap_variable_for_retrieve_roles_list];//memberof
+		$output = $entries[0][strtolower($this->ldap_variable_for_retrieve_roles_list)];//memberof
 		$token = $entries[0]['primarygroupid'][0];
 		
 		// Remove extraneous first entry
