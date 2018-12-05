@@ -101,7 +101,7 @@ class CLDAPExtended extends CDpObject {
 				$q = new DBQuery();
 				$q->addTable('config');
 				$q->addUpdate('config_type', 'select');
-				$q->addWhere("config_name=ldap_variable_for_retrieve_roles_list");
+				$q->addWhere("config_name='ldap_variable_for_retrieve_roles_list'");
 				$q->exec();
 				$q->clear();
 			}
@@ -117,7 +117,7 @@ class CLDAPExtended extends CDpObject {
 				$q = new DBQuery();
 				$q->addTable('config_list');
 				$q->addInsert('config_id', $configId);
-				$q->addInsert('config_list_name', 'memberOf');
+				$q->addInsert('config_list_name', 'memberof');
 				$q->exec();
 				$q->clear();
 				
@@ -530,6 +530,16 @@ class CLDAPExtended extends CDpObject {
 			echo "<br />Group \"".$group ."\" not found on LDAP<br />";
 		}
 		return $users;
+	}
+	
+	function EventQueue_runSynchronization(){
+			$syncType=$dPconfig['ldap_variable_for_retrieve_roles_list'];
+			if(strtolower($syncType)=="memberof"){ 
+				require_once DP_BASE_DIR ."/modules/ldap_extended/do_ldap_memberof_based.php";
+			}else{
+				require_once DP_BASE_DIR ."/modules/ldap_extended/do_ldap_group_membership_based.php";
+			}
+		
 	}
 	
 }
