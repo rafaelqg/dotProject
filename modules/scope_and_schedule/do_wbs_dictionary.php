@@ -11,4 +11,4 @@ $obj->load($id);
 $obj->wbs_dictionary = dPgetParam($_POST, "dictionary");
 $obj->store();
 $AppUI->redirect();
-?>
+

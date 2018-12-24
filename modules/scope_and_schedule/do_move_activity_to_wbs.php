@@ -24,4 +24,3 @@ $q->exec();
 $q->clear();
 
 $AppUI->redirect();
-?>

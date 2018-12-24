@@ -6,4 +6,3 @@ $user_id = dPgetParam($_POST, 'user_id');
 $taskAssigment= new CTaskAssignement();
 $taskAssigment->deleteAssignedUsersToTask($task_id,$user_id);
 $AppUI->redirect();
-?>

@@ -24,4 +24,4 @@ if (!$obj->bind($_POST)) {
 	}
 }
 $AppUI->redirect(); //'m=projects&a=view&project_id='.$project_id
-?>
+

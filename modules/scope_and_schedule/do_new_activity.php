@@ -45,4 +45,3 @@ $q->addInsert("activity_order",$order);
 $q->exec();
 $q->clear();
 $AppUI->redirect();
-?>

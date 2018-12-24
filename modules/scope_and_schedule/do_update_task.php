@@ -46,4 +46,4 @@ if (!$obj->bind($_POST)) {
 }
 die();
 //$AppUI->redirect();
-?>
+

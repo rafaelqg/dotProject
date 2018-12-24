@@ -8,4 +8,3 @@ if( intval($user_id) != -1){
 	$taskAssigment->addAssignedUsersToTask($task_id,$user_id);
 }
 $AppUI->redirect();
-?>

@@ -27,4 +27,3 @@
 		$AppUI->setMsg($AppUI->_("No dependency included",UI_OUTPUT_HTML), UI_MSG_ERROR, true);
 	}
 	$AppUI->redirect();
-?>

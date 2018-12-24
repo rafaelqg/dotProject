@@ -48,7 +48,7 @@ class ControllerActivityMDP {
 		$q->addWhere("t.task_id = $activityId and t.task_milestone<>1");
 		$sql = $q->prepare();
 		$tasks = db_loadList($sql);
-                $activityMDP= new ActivityMDP();
+		$activityMDP= new ActivityMDP();
 		foreach($tasks as $task){
 			$dependencies=array();
 			$q = new DBQuery();

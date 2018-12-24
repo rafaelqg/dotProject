@@ -31,4 +31,4 @@ $project_id=$obj->project_id;
 deleteChildren($obj);
 
 $AppUI->redirect();//'m=projects&a=view&project_id='.$project_id
-?>
+

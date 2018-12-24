@@ -8,4 +8,3 @@ $AppUI->savePlace();
 
 <?php
 require_once DP_BASE_DIR . "/modules/scope_and_schedule/view_project_wbs.php";
-?>

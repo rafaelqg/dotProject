@@ -44,4 +44,4 @@ $q->exec();
 
 	
 $AppUI->redirect();//'m=projects&a=view&project_id='.$project_id
-?>
+

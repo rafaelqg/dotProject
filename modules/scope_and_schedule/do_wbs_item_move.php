@@ -24,4 +24,4 @@ if( substr( $wbsPosition->number, 0, strlen ($obj->number) ) !== $obj->number ){
 }
 	
 $AppUI->redirect();//'m=projects&a=view&project_id='.$project_id
-?>
+

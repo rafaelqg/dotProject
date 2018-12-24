@@ -21,4 +21,3 @@
 
         $AppUI->setMsg($AppUI->_("Dependency excluded",UI_OUTPUT_HTML), UI_MSG_OK, true);
 		$AppUI->redirect();
-?>
