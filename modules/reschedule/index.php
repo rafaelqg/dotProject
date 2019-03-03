@@ -94,7 +94,9 @@ foreach ($projects as $row) {
 			<?php echo (htmlspecialchars($end_date ? $end_date->format($df) : '-')); ?>
 		</td>
 		<td nowrap="nowrap">
-			<form action="new_start_date">
+			<form action="?m=reschedule" method="POST"> 
+				<input type="hidden" name="dosql" value="do_reschedule_project" />
+				<input type="hidden" name="project_id" value="<?php echo $row['project_id']; ?>" />
 				<input type="text" name="new_start_date_<?php echo $row['project_id'] ?>" id="new_start_date_<?php echo $row['project_id'] ?>" />
 				<script>
 					var startDate=document.getElementById("new_start_date_<?php echo $row['project_id']?>");
