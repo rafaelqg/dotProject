@@ -155,6 +155,7 @@ class EventQueue {
 
 		if (! isset($this->batch_list[$fields['queue_callback']]) ) {
 			$modfile = $AppUI->getModuleClass($fields['queue_module']);
+			echo "Mod file: " . $modfile; 
 			if (!file_exists($modfile)) {
 				$modfile = $AppUI->getSystemClass($fields['queue_module']);
 			}
@@ -165,6 +166,7 @@ class EventQueue {
 
 		if (strpos($fields['queue_callback'], '::') !== false) {
 			list($class, $method) = explode('::', $fields['queue_callback']);
+			echo "class, method>", $class, $method;
 			if (!class_exists($class)) {
 				dprint(__FILE__, __LINE__, 2, "Cannot process event: Class $class does not exist");
 				return false;
@@ -177,6 +179,7 @@ class EventQueue {
 					'modfile' => $modfile,
 				);
 			}
+			
 			$object =& $this->batch_list[$fields['queue_callback']]['object'];
 			$real_method = 'EventQueue_' . $method;
 			if ($fields['queue_batched'] && method_exists($object, $real_method . '_batched')) {
@@ -186,7 +189,8 @@ class EventQueue {
 			} else if (!method_exists($object, $real_method)) {
 				dprint(__FILE__, __LINE__, 2, "Cannot process event: Method $class::$method does not exist");
 				return false;
-			}
+			} 
+			echo "Real method: ". $real_method;
 			return $object->$real_method($fields);
 		}  else {
 			return false;
@@ -231,6 +235,7 @@ class EventQueue {
 		$rid = $q->exec();
 
 		for ($rid; ! $rid->EOF; $rid->moveNext()) {
+			print_r($rid->fields);
 			if ($this->execute($rid->fields)) {
 				$this->update_event($rid->fields);
 				$this->event_count++;
