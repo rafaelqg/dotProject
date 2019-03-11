@@ -25,45 +25,31 @@ $userDateFormat=str_replace("%m", "mm", $userDateFormat);
 $userDateFormat=str_replace("%Y", "YY", $userDateFormat);
 $userDateFormat=strtolower($userDateFormat); 
 $_SESSION["dateFormat"]=$userDateFormat;
-
+$project_id=$_GET["project_id"];
 
 $q = new DBQuery;
-$q->addTable('projects','p');
-$q->addJoin('contacts', 'con', 'p.project_owner=con.contact_id');
-$q->addJoin('companies', 'com', 'com.company_id= p.project_company');
-$q->addQuery('p.project_id');
-$q->addQuery('p.project_name');
-$q->addQuery('project_start_date');
-$q->addQuery('project_end_date');
-$q->addQuery('com.company_name','company_name');
-$q->addQuery('CONCAT_WS(", ", con.contact_last_name,con.contact_first_name) as owner'); 
-$q->addOrder('p.project_start_date');
-//$q->addOrder('com.company_name');
-//$q->addWhere('');
+$q->addTable('tasks','t');
+$q->addQuery('t.task_id');
+$q->addQuery('t.task_name');
+$q->addQuery('t.task_start_date');
+$q->addQuery('t.task_end_date');
+$q->addOrder('t.task_start_date');
+$q->addWhere('t.task_project='.$project_id);
 $sql = $q->prepare();
 //echo $sql;
-$projects = db_loadList($sql);//$q->loadHashList();
+$tasks = db_loadList($sql);//$q->loadHashList();
 ?>
-Choose the project to be rescheduled:
+Choose the tasks to be rescheduled:
 <table width="100%" border="0" cellpadding="3" cellspacing="1" class="tbl">
 <tr>
 	<th nowrap="nowrap">
-		<?php echo $AppUI->_('Project Name');?>		
+		<?php echo $AppUI->_('Task Name');?>		
 	</th>
 	<th nowrap="nowrap">
-		<?php echo $AppUI->_('Tasks');?>		
+		<?php echo $AppUI->_('Start Date');?>
 	</th>
 	<th nowrap="nowrap">
-		<?php echo $AppUI->_('Company');?>
-	</th>
-	<th nowrap="nowrap">
-		<?php echo $AppUI->_('Owner');?>
-	</th>
-	<th nowrap="nowrap">
-		<?php echo $AppUI->_('Start');?>
-	</th>
-	<th nowrap="nowrap">
-		<?php echo $AppUI->_('Due Date');?>
+		<?php echo $AppUI->_('End Date');?>
 	</th>
 	<th nowrap="nowrap">
 		<?php echo $AppUI->_('New start date');?>
@@ -71,32 +57,15 @@ Choose the project to be rescheduled:
 </tr>
 
 <?php
-foreach ($projects as $row) {
-	if (! getPermission('projects', 'view', $row['project_id'])) {
-		continue;
-	}
-	$start_date = ((intval(@$row['project_start_date'])) ? new CDate($row['project_start_date']) : null);
-	$end_date = ((intval(@$row['project_end_date'])) ? new CDate($row['project_end_date']) : null);
+foreach ($tasks as $row) {
+	$start_date = ((intval(@$row['task_start_date'])) ? new CDate($row['task_start_date']) : null);
+	$end_date = ((intval(@$row['task_end_date'])) ? new CDate($row['task_end_date']) : null);
 	?>
 	<tr>
-	
 		<td>
-			<a href="?m=projects&a=view&project_id=<?php echo $row["project_id"] ?>">
-				<?php echo $row["project_name"]; ?>
+			<a href="?m=tasks&a=view&task_id=<?php echo $row["task_id"] ?>">
+				<?php echo $row["task_name"]; ?>
 			</a>
-		</td>
-		
-		<td style="text-align:center">
-			<a href="?m=reschedule&a=index_tasks&project_id=<?php echo $row["project_id"] ?>">
-				<?php echo $AppUI->_('Reschedule Tasks');?>
-			</a>
-		</td>
-	
-		<td>
-			<?php echo $row["company_name"]; ?>
-		</td>
-		<td>
-			<?php echo $row["owner"]; ?>
 		</td>
 		<td align="center">
 			<?php echo (htmlspecialchars($start_date ? $start_date->format($df) : '-')); ?>
@@ -106,17 +75,16 @@ foreach ($projects as $row) {
 		</td>
 		<td nowrap="nowrap">
 			<form action="?m=reschedule" method="POST"> 
-				<input type="hidden" name="dosql" value="do_reschedule_project" />
-				<input type="hidden" name="project_id" value="<?php echo $row['project_id']; ?>" />
-				<input type="text" name="new_start_date_<?php echo $row['project_id'] ?>" id="new_start_date_<?php echo $row['project_id'] ?>" />
+				<input type="hidden" name="dosql" value="do_reschedule_task" /> 
+				<input type="hidden" name="task_id" value="<?php echo $row['task_id']; ?>" />
+				<input type="text" name="new_start_date_<?php echo $row['task_id'] ?>" id="new_start_date_<?php echo $row['task_id'] ?>" />
 				<script>
-					var startDate=document.getElementById("new_start_date_<?php echo $row['project_id']?>");
+					var startDate=document.getElementById("new_start_date_<?php echo $row['task_id']?>");
 					$(startDate).datepicker({dateFormat: "<?php echo $_SESSION["dateFormat"] ?>",showButtonPanel: true, firstDay: 1, changeYear:true, changeMonth:true} );
 				</script> 
 				<input type="submit" class="button" value="Reschedule" />
 			</form>
 		</td>
-		
 	</tr>
 <?php }  ?>
 </table>
