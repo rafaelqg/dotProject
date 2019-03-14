@@ -139,7 +139,6 @@ function showFullProject() {
 	document.editFrm.display_option.value = "all";
 	document.editFrm.submit();
 }
-
 </script>
 <table class="tbl" width="100%" border="0" cellpadding="4" cellspacing="0" summary="projects view gantt">
 <tr>
@@ -249,7 +248,40 @@ if (!dPcheckMem(32*1024*1024)) {
 	echo ('<span style="color: red; font-weight: bold;">'  . $AppUI->_('invalid memory config') 
 	      . '</span>');
 }
-?>
+?>	
+<svg id="gantt"></svg>
+
+<script src="lib/frappe-gantt/frappe-gantt.min.js"></script>
+<link rel="stylesheet" href="lib/frappe-gantt/frappe-gantt.css">
+<script>
+var tasks = [
+  {
+    id: 'Task 1',
+    name: 'Implement gantt',
+    start: '2016-12-28',
+    end: '2016-12-31',
+    progress: 20,
+    dependencies: 'Task 2, Task 3'
+	},
+	{
+    id: 'Task 2',
+    name: 'TEST',
+    start: '2016-11-28',
+    end: '2016-12-31',
+    progress: 20,
+    dependencies: 'Task 2, Task 3'
+	},
+	{
+    id: 'Task 3',
+    name: 'Test 2',
+    start: '2016-12-20',
+    end: '2016-12-31',
+    progress: 20,
+    dependencies: 'Task 2, Task 3'
+  }
+]
+var gantt = new Gantt("#gantt", tasks);
+</script>
 			</td>
 		</tr>
 		</table>
