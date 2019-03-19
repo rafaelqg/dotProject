@@ -228,7 +228,7 @@ echo ("<a href='javascript:showThisMonth()'>" . $AppUI->_('show this month')
 		</table>
 		</form>
 
-		<table cellspacing="0" cellpadding="0" border="1" align="center" class="tbl" summary="show gantt">
+		<table cellspacing="0" cellpadding="0" border="1" style="table-layout:fixed" width="100%" align="center" class="tbl" summary="show gantt">
 		<tr>
 			<td>
 				<?php
@@ -248,11 +248,10 @@ if (!dPcheckMem(32*1024*1024)) {
 	echo ('<span style="color: red; font-weight: bold;">'  . $AppUI->_('invalid memory config') 
 	      . '</span>');
 }
-?>	
+?>
 <svg id="gantt"></svg>
-
-<script src="lib/frappe-gantt/frappe-gantt.min.js"></script>
 <link rel="stylesheet" href="lib/frappe-gantt/frappe-gantt.css">
+<script src="lib/frappe-gantt/frappe-gantt.min.js"></script>
 <script>
 var tasks = [
   {
@@ -288,3 +287,4 @@ var gantt = new Gantt("#gantt", tasks);
 	</td>
 </tr>
 </table>
+
