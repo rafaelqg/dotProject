@@ -3,6 +3,10 @@ if (!defined('DP_BASE_DIR')) {
 	die('You should not access this file directly.');
 }
 
+require_once DP_BASE_DIR . '/modules/projects/frappegantt.php';
+
+Gantt::WriteHeader();
+
 global $AppUI, $company_id, $dept_ids, $department, $min_view, $m, $a, $user_id, $tab;
 global $m_orig, $a_orig;
 
@@ -140,7 +144,7 @@ function showFullProject() {
 	document.editFrm.submit();
 }
 </script>
-<table class="tbl" width="100%" border="0" cellpadding="4" cellspacing="0" summary="projects view gantt">
+<table class="tbl" style="table-layout:fixed" width="100%" border="0" cellpadding="4" cellspacing="0" summary="projects view gantt">
 <tr>
 	<td>
 		<form name="editFrm" method="post" action="?<?php 
@@ -228,61 +232,7 @@ echo ("<a href='javascript:showThisMonth()'>" . $AppUI->_('show this month')
 		</table>
 		</form>
 
-		<table cellspacing="0" cellpadding="0" border="1" style="table-layout:fixed" width="100%" align="center" class="tbl" summary="show gantt">
-		<tr>
-			<td>
-				<?php
-$src = ("?m=projects&amp;a=gantt&amp;suppressHeaders=1" . 
-	(($display_option == 'all') ? '' 
-         : ('&amp;start_date=' . $start_date->format("%Y-%m-%d") 
-           . '&amp;end_date=' . $end_date->format("%Y-%m-%d"))) . "&amp;width='" 
-		. "+((navigator.appName=='Netscape'?window.innerWidth:document.body.offsetWidth)*0.95)" 
-		. "+'&amp;showLabels=" . $showLabels . '&amp;sortTasksByName=' .$sortTasksByName 
-		. '&amp;proFilter=' .$proFilter . '&amp;showInactive=' . $showInactive 
-		. '&amp;company_id=' . $company_id . '&amp;department=' . $department . '&amp;dept_ids=' . $dept_ids 
-		. '&amp;showAllGantt=' . $showAllGantt . '&amp;user_id=' . $user_id . '&amp;addPwOiD=' . $addPwOiD 
-		. '&amp;m_orig=' . $m_orig . '&amp;a_orig=' . $a_orig);
-echo '<script>document.write(\'<img src="' . $src . '">\')</script>';
-if (!dPcheckMem(32*1024*1024)) {
-	echo '</td></tr><tr><td>';
-	echo ('<span style="color: red; font-weight: bold;">'  . $AppUI->_('invalid memory config') 
-	      . '</span>');
-}
-?>
-<svg id="gantt"></svg>
-<link rel="stylesheet" href="lib/frappe-gantt/frappe-gantt.css">
-<script src="lib/frappe-gantt/frappe-gantt.min.js"></script>
-<script>
-var tasks = [
-  {
-    id: 'Task 1',
-    name: 'Implement gantt',
-    start: '2016-12-28',
-    end: '2016-12-31',
-    progress: 20,
-    dependencies: 'Task 2, Task 3'
-	},
-	{
-    id: 'Task 2',
-    name: 'TEST',
-    start: '2016-11-28',
-    end: '2016-12-31',
-    progress: 20,
-    dependencies: 'Task 2, Task 3'
-	},
-	{
-    id: 'Task 3',
-    name: 'Test 2',
-    start: '2016-12-20',
-    end: '2016-12-31',
-    progress: 20,
-    dependencies: 'Task 2, Task 3'
-  }
-]
-var gantt = new Gantt("#gantt", tasks);
-</script>
-			</td>
-		</tr>
+		<?php Gantt::Projects()->render(); ?>
 		</table>
 	</td>
 </tr>
