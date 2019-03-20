@@ -1,6 +1,7 @@
 <?php
 require_once DP_BASE_DIR . '/classes/query.class.php';
 
+
 /**
  * Frappe Gantt renderer for PHP
  * 
@@ -97,13 +98,64 @@ class Gantt {
                 "end" => $project["project_end_date"]
             ]);
         }
+        $q->clear();
     }
 
     /**
      * Get the project tasks from the db and format them for a gantt chart
      */
     private function getProjectTasks($projectID) {
+        global $AppUI;
         //get tasks of a project
+
+        $q = new DBQuery;
+        $q->addTable('tasks', 't');
+        $q->addJoin('projects', 'p', 'p.project_id = t.task_project');
+        
+        $q->addQuery('t.task_id, task_parent, task_name, task_start_date, task_end_date' 
+                     . ', task_duration, task_duration_type, task_priority, task_percent_complete' 
+                     . ', task_order, task_project, task_milestone, project_name, task_dynamic');
+        
+        $q->addWhere('project_status != 7');
+        if ($project_id) {
+            $q->addWhere('task_project = ' . $project_id);
+        }
+        if ($f != 'myinact') {
+            $q->addWhere('task_status > -1');
+        }
+        switch ($f) {
+            case 'all':
+                break;
+            case 'myproj':
+                $q->addWhere('project_owner = ' . $AppUI->user_id);
+                break;
+            case 'mycomp':
+                $q->addWhere('project_company = ' . $AppUI->user_company);
+                break;
+            case 'myinact':
+                $q->innerJoin('user_tasks', 'ut', 'ut.task_id = t.task_id');
+                $q->addWhere('ut.user_id = '.$AppUI->user_id);
+                break;
+            default:
+                $q->innerJoin('user_tasks', 'ut', 'ut.task_id = t.task_id');
+                $q->addWhere('ut.user_id = '.$AppUI->user_id);
+                break;
+        }
+        
+        $q->addOrder('p.project_id, ' . (($sortByName) ? 't.task_name, ' : '') . 't.task_start_date');
+
+        $tasks = $q->loadHashList('task_id');
+        $q->clear();
+
+        foreach ($tasks as $task) {
+            array_push($this->tasks, [
+                "id" => $task["task_id"],
+                "name" => $task["task_name"],
+                "start" => $task["task_start_date"],
+                "end" => $task["task_end_date"],
+                "progress" => $task["task_percent_complete"]
+            ]);
+        }
     }
 }
 

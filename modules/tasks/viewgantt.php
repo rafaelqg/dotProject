@@ -3,6 +3,8 @@ if (!defined('DP_BASE_DIR')) {
   die('You should not access this file directly.');
 }
 
+require_once DP_BASE_DIR . '/modules/projects/frappegantt.php';
+
 GLOBAL $min_view, $m, $a, $user_id, $tab, $tasks;
 
 $min_view = defVal(@$min_view, false);
@@ -148,7 +150,7 @@ function showFullProject() {
 echo ('m=' . $m . '&amp;a=' . $a . '&amp=tab=' . $tab . '&amp;project_id=' . $project_id); ?>">
 <input type="hidden" name="display_option" value="<?php echo $display_option;?>" />
 
-<table border="0" cellpadding="4" cellspacing="0">
+<table border="0" cellpadding="4" cellspacing="0" style="table-layout:fixed;">
 <tr>
 	<td align="left" valign="top" width="20">
 <?php if ($display_option != "all") { ?>
@@ -212,7 +214,7 @@ echo $AppUI->_('next');?>" border="0" />
 <tr>
 	<td align="center" valign="bottom" nowrap="nowrap" colspan="7">
 		<input type="hidden" name="show_form" value="1" />
-		<table width="100%" border="0" cellpadding="1" cellspacing="0">
+		<table width="100%" border="0" cellpadding="1" cellspacing="0" style="table-layout:fixed;">
 			<tr>
 			<td align="center" valign="bottom" nowrap="nowrap">
 				<input type="checkbox" name="showPinned" id="showPinned" <?php 
@@ -256,7 +258,7 @@ echo (($a == 'todo') ? $AppUI->_('show all') : $AppUI->_('show full project')); 
 </table>
 </form>
 
-<table cellspacing="0" cellpadding="0" border="1" align="center">
+<table cellspacing="0" cellpadding="0" border="1" align="center" width="100%" style="table-layout:fixed;">
 <tr>
 	<td>
 <?php
@@ -282,8 +284,10 @@ if ($cnt[0]['N'] > 0) {
 	        . '&amp;showDynTasks=' . $showDynTasks . '&amp;showLowTasks=' . $showLowTasks 
 	        . '&amp;caller=' . $a . '&amp;user_id=' . $user_id);
 ?>
-	<script >document.write('<img src="<?php echo $src; ?>" alt="" />')</script>
+	<!--<script >document.write('<img src="<?php echo $src; ?>" alt="" />')</script>-->
 <?php
+	Gantt::ProjectTasks($project_id)->render();
+
 	//If we have a problem displaying this we need to display a warning.
 	//Put it at the bottom just in case
 	if (! dPcheckMem(32*1024*1024)) {
