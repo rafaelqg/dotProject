@@ -9,8 +9,8 @@ require_once DP_BASE_DIR . '/classes/query.class.php';
  * @
  */
 class Gantt {
-    public const ListProjects = 1;
-    public const ListProjectTasks = 2;
+    const ListProjects = 1;
+    const ListProjectTasks = 2;
     private static $headerWritten = false;
 
     /**
@@ -106,7 +106,6 @@ class Gantt {
      */
     private function getProjectTasks($projectID) {
         global $AppUI;
-        //get tasks of a project
 
         $q = new DBQuery;
         $q->addTable('tasks', 't');
