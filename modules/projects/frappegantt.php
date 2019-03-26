@@ -172,6 +172,9 @@ class Gantt {
         $projects = $q->loadList();
         $q->clear();
         foreach ($projects as $project) {
+            if ($project["project_start_date"] == null || $project["project_end_date"] == null) {
+                continue;
+            }
             array_push($this->tasks, [
                 "id" => $project["project_id"],
                 "name" => $project["project_name"],
@@ -237,6 +240,9 @@ class Gantt {
 
         $proTasks = $q->loadHashList('task_id');
         foreach ($proTasks as $task) {
+            if ($task["task_start_date"] == null || $task["task_end_date"] == null) {
+                continue;
+            }
             array_push($this->tasks, [
                 "id" => $task["task_id"],
                 "name" => $task["task_name"],
