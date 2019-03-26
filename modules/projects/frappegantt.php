@@ -92,19 +92,21 @@ class Gantt {
             return;
         }
 
-        $this->filters["project_id"] = intval(dPgetParam($_REQUEST, 'project_id'));
-        $this->filters["user_id"] = intval(dPgetParam($_REQUEST, 'user_id', $AppUI->user_id));
-        $this->filters["proFilter"] = (int)dPgetParam($_REQUEST, 'proFilter', '-1');
-        $this->filters["company_id"] = intval(dPgetParam($_REQUEST, 'company_id', 0));
-        $this->filters["department"] = intval(dPgetParam($_REQUEST, 'department', 0));
-        $this->filters["showLabels"] = (int)dPgetParam($_REQUEST, 'showLabels', 0);
-        $this->filters["showInactive"] = (int)dPgetParam($_REQUEST, 'showInactive', 0);
-        $this->filters["sortTasksByName"] = (int)dPgetParam($_REQUEST, 'sortTasksByName', 0);
-        $this->filters["addPwOiD"] = (int)dPgetParam($_REQUEST, 'addPwOiD', 0);
-        $this->filters["m_orig"] = dPgetCleanParam($_REQUEST, 'm_orig', $m);
-        $this->filters["a_orig"] = dPgetCleanParam($_REQUEST, 'a_orig', $a);    
-        $this->filters["sdate"] = dPgetCleanParam($_REQUEST, 'sdate', 0);
-        $this->filters["edate"] = dPgetCleanParam($_REQUEST, 'edate', 0);
+        $this->filters = array(
+            "project_id" => intval(dPgetParam($_REQUEST, 'project_id')),
+            "user_id" => intval(dPgetParam($_REQUEST, 'user_id', $AppUI->user_id)),
+            "proFilter" => (int)dPgetParam($_REQUEST, 'proFilter', '-1'),
+            "company_id" => intval(dPgetParam($_REQUEST, 'company_id', 0)),
+            "department" => intval(dPgetParam($_REQUEST, 'department', 0)),
+            "showLabels" => (int)dPgetParam($_REQUEST, 'showLabels', 0),
+            "showInactive" => (int)dPgetParam($_REQUEST, 'showInactive', 0),
+            "sortTasksByName" => (int)dPgetParam($_REQUEST, 'sortTasksByName', 0),
+            "addPwOiD" => (int)dPgetParam($_REQUEST, 'addPwOiD', 0),
+            "m_orig" => dPgetCleanParam($_REQUEST, 'm_orig', $m),
+            "a_orig" => dPgetCleanParam($_REQUEST, 'a_orig', $a),    
+            "sdate" => dPgetCleanParam($_REQUEST, 'sdate', 0),
+            "edate" => dPgetCleanParam($_REQUEST, 'edate', 0)
+        );
     }
 
     /**
@@ -175,12 +177,12 @@ class Gantt {
             if ($project["project_start_date"] == null || $project["project_end_date"] == null) {
                 continue;
             }
-            array_push($this->tasks, [
+            array_push($this->tasks, array(
                 "id" => $project["project_id"],
                 "name" => $project["project_name"],
                 "start" => $project["project_start_date"],
                 "end" => $project["project_end_date"]
-            ]);
+            ));
         }
     }
 
@@ -243,13 +245,13 @@ class Gantt {
             if ($task["task_start_date"] == null || $task["task_end_date"] == null) {
                 continue;
             }
-            array_push($this->tasks, [
+            array_push($this->tasks, array(
                 "id" => $task["task_id"],
                 "name" => $task["task_name"],
                 "start" => $task["task_start_date"],
                 "end" => $task["task_end_date"],
                 "progress" => $task["task_percent_complete"]
-            ]);
+            ));
         }
     }
 }
