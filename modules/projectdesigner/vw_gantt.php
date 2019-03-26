@@ -10,7 +10,6 @@ $projectStatus = dPgetSysVal( 'ProjectStatus' );
 
 Gantt::Projects()->render();
 ?>
-VW_GANTT
 <!--table width="100%" border="0" cellpadding="5" cellspacing="1">
 <tr>
     <td align="center" colspan="20">
