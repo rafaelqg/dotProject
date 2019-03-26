@@ -11,6 +11,7 @@ class Gantt {
     const ListProjects = 1;
     const ListProjectTasks = 2;
     private static $headerWritten = false;
+    private $taskClickURL = "";
 
     /**
      * Create a gantt for projects
@@ -50,9 +51,11 @@ class Gantt {
         switch ($type) {
             case Gantt::ListProjects:
                 $this->getProjects();
+                $this->taskClickURL = "index.php?m=projects&a=view&project_id=%id%";
             break;
             case Gantt::ListProjectTasks:
                 $this->getProjectTasks($params["projectid"]);
+                $this->taskClickURL = "index.php?m=tasks&a=view&task_id=%id%";
             break;
         }
     }
@@ -76,11 +79,7 @@ class Gantt {
         }
         $json = json_encode($this->tasks);
         //render html+json for frappe
-        echo "<svg id=\"gantt\"></svg>
-        <script>
-        var tasks = $json;
-        var gantt = new Gantt(\"#gantt\", tasks);
-        </script>";
+        include "frappegantt.view.php";
     }
 
     /**
