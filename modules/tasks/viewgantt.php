@@ -181,21 +181,6 @@ echo $end_date->format($df);?>" size="12" disabled="disabled" />
 		<a href="javascript:popCalendar('edate')">
 		<img src="./images/calendar.gif" width="24" height="12" alt="" border="0" />
 		</a>
-	<td valign="top">
-		<input type="checkbox" name="showLabels" id="showLabels" <?php 
-echo (($showLabels == 1) ? 'checked="checked"' : ''); ?> /><label for="showLabels"><?php 
-echo $AppUI->_('Show captions'); ?></label>
-	</td>
-	<td valign="top">
-		<input type="checkbox" name="showWork" id="showWork" <?php 
-echo (($showWork == 1) ? 'checked="checked"' : ''); ?> /><label for="showWork"><?php 
-echo $AppUI->_('Show work instead of duration'); ?></label>
-	</td>	
-	<td valign="top">
-		<input type="checkbox" name="sortByName" id="sortByName" <?php 
-echo (($sortByName == 1) ? 'checked="checked"' : ''); ?> /><label for="sortByName"><?php 
-echo $AppUI->_('Sort by Task Name'); ?></label>
-	</td>	
 	<td align="left">
 		<input type="button" class="button" value="<?php 
 echo $AppUI->_('submit');?>" onclick='javascript:document.editFrm.display_option.value="custom";submit();'>
