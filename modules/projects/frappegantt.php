@@ -181,7 +181,8 @@ class Gantt {
                 "id" => $project["project_id"],
                 "name" => $project["project_name"],
                 "start" => $project["project_start_date"],
-                "end" => $project["project_end_date"]
+                "end" => $project["project_end_date"],
+                "progress" => $project["project_percent_complete"]
             ));
         }
     }
