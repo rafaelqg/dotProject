@@ -87,6 +87,13 @@ class Gantt {
      * Get the options chosen from the project filter pane
      */
     private function getFilters() {
+        global $AppUI;
+        $display_option = dPgetCleanParam($_POST, 'display_option', 'this_month');
+        if ($display_option == 'all') {
+            return;
+        }
+
+        $this->filters["project_id"] = intval(dPgetParam($_REQUEST, 'project_id'));
         $this->filters["user_id"] = intval(dPgetParam($_REQUEST, 'user_id', $AppUI->user_id));
         $this->filters["proFilter"] = (int)dPgetParam($_REQUEST, 'proFilter', '-1');
         $this->filters["company_id"] = intval(dPgetParam($_REQUEST, 'company_id', 0));
@@ -96,7 +103,10 @@ class Gantt {
         $this->filters["sortTasksByName"] = (int)dPgetParam($_REQUEST, 'sortTasksByName', 0);
         $this->filters["addPwOiD"] = (int)dPgetParam($_REQUEST, 'addPwOiD', 0);
         $this->filters["m_orig"] = dPgetCleanParam($_REQUEST, 'm_orig', $m);
-        $this->filters["a_orig"] = dPgetCleanParam($_REQUEST, 'a_orig', $a);    }
+        $this->filters["a_orig"] = dPgetCleanParam($_REQUEST, 'a_orig', $a);    
+        $this->filters["sdate"] = dPgetCleanParam($_REQUEST, 'sdate', 0);
+        $this->filters["edate"] = dPgetCleanParam($_REQUEST, 'edate', 0);
+    }
 
     /**
      * Get the projects from the db and format them for a gantt chart
@@ -180,44 +190,54 @@ class Gantt {
 
         $q = new DBQuery;
         $q->addTable('tasks', 't');
-        $q->addJoin('projects', 'p', 'p.project_id = t.task_project');
-        
-        $q->addQuery('t.task_id, task_parent, task_name, task_start_date, task_end_date' 
-                     . ', task_duration, task_duration_type, task_priority, task_percent_complete' 
-                     . ', task_order, task_project, task_milestone, project_name, task_dynamic');
-        
+        $q->addQuery('t.task_id, task_parent, task_name, task_start_date, task_end_date, task_duration, task_duration_type, task_priority, task_percent_complete, task_order, task_project, task_milestone, project_name, task_dynamic');
+        $q->addJoin('projects', 'p', 'project_id = t.task_project');
         $q->addWhere('project_status != 7');
-        if ($project_id) {
-            $q->addWhere('task_project = ' . $project_id);
+        if ($this->filters["project_id"]) {
+                $q->addWhere('task_project = '.$this->filters["project_id"]);
         }
-        if ($f != 'myinact') {
-            $q->addWhere('task_status > -1');
+        if ($this->filters["sdate"] != 0) {
+            $date = (new CDate($this->filters["sdate"]))->format(FMT_DATETIME_MYSQL);
+            $q->addWhere("task_start_date > '$date'");
+        }
+        if ($this->filters["edate"] != 0) {
+            $date = (new CDate($this->filters["edate"]))->format(FMT_DATETIME_MYSQL);
+            $q->addWhere("task_start_date < '$date'");
         }
         switch ($f) {
             case 'all':
-                break;
+                    $q->addWhere('task_status > -1');
+                    break;
             case 'myproj':
-                $q->addWhere('project_owner = ' . $AppUI->user_id);
-                break;
+                    $q->addWhere('task_status > -1');
+                    $q->addWhere('project_owner = '.$AppUI->user_id);
+                    break;
             case 'mycomp':
-                $q->addWhere('project_company = ' . $AppUI->user_company);
-                break;
+                    $q->addWhere('task_status > -1');
+                    $q->addWhere('project_company = '.$AppUI->user_company);
+                    break;
             case 'myinact':
-                $q->innerJoin('user_tasks', 'ut', 'ut.task_id = t.task_id');
-                $q->addWhere('ut.user_id = '.$AppUI->user_id);
-                break;
+                    $q->addTable('user_tasks', 'ut');
+                    $q->addWhere('task_project = p.project_id');
+                    $q->addWhere('ut.user_id = '.$AppUI->user_id);
+                    $q->addWhere('ut.task_id = t.task_id');
+                    break;
             default:
-                $q->innerJoin('user_tasks', 'ut', 'ut.task_id = t.task_id');
-                $q->addWhere('ut.user_id = '.$AppUI->user_id);
-                break;
+                    $q->addTable('user_tasks', 'ut');
+                    $q->addWhere('task_status > -1');
+                    $q->addWhere('task_project = p.project_id');
+                    $q->addWhere('ut.user_id = '.$AppUI->user_id);
+                    $q->addWhere('ut.task_id = t.task_id');
+                    break;
         }
-        
-        $q->addOrder('p.project_id, ' . (($sortByName) ? 't.task_name, ' : '') . 't.task_start_date');
 
-        $tasks = $q->loadHashList('task_id');
-        $q->clear();
+        $q->addOrder('project_id, task_start_date');
 
-        foreach ($tasks as $task) {
+        $task = new CTask;
+        $task->setAllowedSQL($AppUI->user_id, $q);
+
+        $proTasks = $q->loadHashList('task_id');
+        foreach ($proTasks as $task) {
             array_push($this->tasks, [
                 "id" => $task["task_id"],
                 "name" => $task["task_name"],
