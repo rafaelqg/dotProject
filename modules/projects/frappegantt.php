@@ -101,12 +101,24 @@ class Gantt {
             "sortTasksByName" => (int)dPgetParam($_REQUEST, 'sortTasksByName', 0),
             "addPwOiD" => (int)dPgetParam($_REQUEST, 'addPwOiD', 0),
             "m_orig" => dPgetCleanParam($_REQUEST, 'm_orig', $m),
-            "a_orig" => dPgetCleanParam($_REQUEST, 'a_orig', $a),    
-            "sdate" => dPgetCleanParam($_REQUEST, 'sdate', 0),
-            "edate" => dPgetCleanParam($_REQUEST, 'edate', 0)
+            "a_orig" => dPgetCleanParam($_REQUEST, 'a_orig', $a),
+            "sdate" => 0,
+            "edate" => 0 
         );
 
-        if ($display_option == 'all') {
+        if ($display_option === 'this_month') {
+            $this->filters = array_merge($this->filters, array(
+                "sdate" => date('Ym01'),
+                "edate" => date('Ymt')
+            ));
+            return;
+        }
+
+        if ($display_option !== 'all') {
+            $this->filters = array_merge($this->filters, array(
+                "sdate" => dPgetCleanParam($_REQUEST, 'sdate', 0),
+                "edate" => dPgetCleanParam($_REQUEST, 'edate', 0)
+            ));
             return;
         }
     }

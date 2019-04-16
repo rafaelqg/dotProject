@@ -2,7 +2,7 @@
     $random = substr(md5(mt_rand()), 0, 7);
 ?>
 <svg id="gantt-<?php echo $random ?>"></svg>
-<p id="gantt-controls-<?php echo $random ?>">
+<p class="gantt-controls" id="gantt-controls-<?php echo $random ?>">
     <button data-view="Quarter Day"><?php echo $AppUI->_("Quarter Day"); ?></button>
     <button data-view="Half Day"><?php echo $AppUI->_("Half Day"); ?></button>
     <button data-view="Day"><?php echo $AppUI->_("Day"); ?></button>
@@ -40,7 +40,9 @@
             on_view_change: function(mode) {
                 for (var buttonID = 0; buttonID < buttons.length; buttonID++) {
                     var button = buttons[buttonID];
-                    button.disabled = mode == button.getAttribute('data-view');
+                    var active = mode == button.getAttribute('data-view');
+                    button.disabled = active;
+                    button.className = active ? "active" : "button";
                 }
             }
         });
@@ -52,3 +54,11 @@
         }
     })();
 </script>
+<style>
+    .gantt-controls .active {
+        color: black;
+        background: none;
+        border: none;
+        font-weight: bold;
+    }
+</style>
