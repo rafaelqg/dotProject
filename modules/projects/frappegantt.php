@@ -74,6 +74,7 @@ class Gantt {
      * Render the gantt chart
      */
     public function render() {
+        global $AppUI;
         if (!Gantt::$headerWritten) {
             Gantt::WriteHeader();
         }
