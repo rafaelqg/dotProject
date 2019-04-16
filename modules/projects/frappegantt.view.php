@@ -2,6 +2,14 @@
     $random = substr(md5(mt_rand()), 0, 7);
 ?>
 <svg id="gantt-<?php echo $random ?>"></svg>
+<p id="gantt-controls-<?php echo $random ?>">
+    <button data-view="Quarter Day"><?php echo $AppUI->_("Quarter Day"); ?></button>
+    <button data-view="Half Day"><?php echo $AppUI->_("Half Day"); ?></button>
+    <button data-view="Day"><?php echo $AppUI->_("Day"); ?></button>
+    <button data-view="Week"><?php echo $AppUI->_("Week"); ?></button>
+    <button data-view="Month"><?php echo $AppUI->_("Month"); ?></button>
+    <button data-view="Year"><?php echo $AppUI->_("Year"); ?></button>
+</p>
 <script>
     (function(){
         var tasks = function() {
@@ -14,6 +22,9 @@
                 gantt.render();
             }, 100);
         }
+        var id = "<?php echo $random ?>";
+        var controls = document.getElementById('gantt-controls-'+id);
+        var buttons = controls.getElementsByTagName('BUTTON');
         var gantt = new Gantt("#gantt-<?php echo $random ?>", tasks(), {
             on_click: function (task) {
                 var href = "<?php echo $this->taskClickURL ?>";
@@ -21,17 +32,23 @@
                 window.location.href = href;
             },
             on_date_change: function(task, start, end) {
-                console.log(task, start, end);
                 resetGantt();
             },
             on_progress_change: function(task, progress) {
-                console.log(task, progress);
                 resetGantt();
             },
             on_view_change: function(mode) {
-                console.log(mode);
+                for (var buttonID = 0; buttonID < buttons.length; buttonID++) {
+                    var button = buttons[buttonID];
+                    button.disabled = mode == button.getAttribute('data-view');
+                }
             }
         });
-        
+        for (var buttonID = 0; buttonID < buttons.length; buttonID++) {
+            buttons[buttonID].onclick = function(e) {
+                var button = e.target;
+                gantt.change_view_mode(button.getAttribute('data-view'));
+            }
+        }
     })();
 </script>
