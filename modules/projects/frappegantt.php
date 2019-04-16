@@ -89,9 +89,6 @@ class Gantt {
     private function getFilters() {
         global $AppUI;
         $display_option = dPgetCleanParam($_POST, 'display_option', 'this_month');
-        if ($display_option == 'all') {
-            return;
-        }
 
         $this->filters = array(
             "project_id" => intval(dPgetParam($_REQUEST, 'project_id')),
@@ -108,6 +105,10 @@ class Gantt {
             "sdate" => dPgetCleanParam($_REQUEST, 'sdate', 0),
             "edate" => dPgetCleanParam($_REQUEST, 'edate', 0)
         );
+
+        if ($display_option == 'all') {
+            return;
+        }
     }
 
     /**
@@ -173,6 +174,9 @@ class Gantt {
         $q->addOrder('project_name, task_end_date DESC');
         
         $projects = $q->loadList();
+        if ($projects === false) {
+            return array();
+        }
         $q->clear();
         foreach ($projects as $project) {
             if ($project["project_start_date"] == null || $project["project_end_date"] == null) {
