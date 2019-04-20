@@ -2,6 +2,7 @@
 if (!defined('DP_BASE_DIR')) {
 	die('You should not access this file directly.');
 }
+global $AppUI;
 $AppUI->savePlace();
 require_once DP_BASE_DIR ."/modules/ldap_extended/ldap_extended.class.php";
 $ldapExt= new CLDAPExtended();
@@ -113,6 +114,23 @@ LDAP Extended Admin console
 	</td>
 </tr>
 
+
+<tr>
+	<th>
+	Enable role creation
+	</th>
+	
+	<td>
+	-
+	<?php 
+		global $dPconfig;
+		
+		echo $ldapExt->ldap_enable_synchronization;
+	?>
+	</td>
+</tr>
+
+
 </table>
 
 
@@ -128,7 +146,7 @@ LDAP Extended Admin console
 		<?php if(strtolower($ldapExt->ldap_variable_for_retrieve_roles_list)!="memberof"){ ?>
 			<td align="center" colspan="2" >
 				<form action="?m=ldap_extended" method="post">
-					 <input type="hidden" name="dosql" value="do_ldap_group_membership_based" action="?m=ldap_extended" method="post" />
+					 <input type="hidden" name="dosql" value="run_synchronization"  />
 					<input type="submit" value="Synchronize" class="button" />
 					<br /><br /><div>* Synchronize method: GroupMembership</div>
 				</form>
@@ -136,7 +154,7 @@ LDAP Extended Admin console
 		<?php }else { ?> 
 			<td align="center" colspan="2" >
 			<form action="?m=ldap_extended" method="post">
-				<input type="hidden" name="dosql" value="do_ldap_memberof_based"  />
+				<input type="hidden" name="dosql" value="run_synchronization"  />
 				<input type="submit" value="Synchronize" class="button" />
 				<br /><br /><div>*Synchronize method: memberOf</div>
 			</form>

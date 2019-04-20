@@ -26,7 +26,7 @@ class CLDAPExtended extends CDpObject {
 		var $ldap_variable_for_retrieve_roles_list;
 		var $ldap_template_role_for_copy_permissions;
 		var $ldap_query_for_select_dotproject_groups; 
-		
+		var $ldap_enable_synchronization; 
 		
 		function __construct() {
 			parent::__construct('ldap_extended', 'ldap_extended_id');
@@ -37,7 +37,7 @@ class CLDAPExtended extends CDpObject {
 			$this->ldap_dn =  $dPconfig['ldap_base_dn'];// "cn=read-only-admin,dc=example,dc=com"
 			$this->ldap_search_user= $dPconfig['ldap_search_user'];//"admin"
 			$this->ldap_password = $dPconfig['ldap_search_pass'];//"password"
-			
+			$this->ldap_enable_synchronization = $dPconfig['ldap_enable_role_creation'];
 			
 			$this->ldap_variable_for_retrieve_roles_list=strtolower($dPconfig['ldap_variable_for_retrieve_roles_list']);//memberof 
 			$this->ldap_template_role_for_copy_permissions=$dPconfig['ldap_template_role_for_copy_permissions'];//normal
@@ -67,16 +67,29 @@ class CLDAPExtended extends CDpObject {
 			}
 			*/
 			
+			
+			if(!isset($dPconfig['ldap_enable_role_creation'])){
+				$q = new DBQuery();
+				$q->addTable('config');
+				$q->addInsert('config_name', 'ldap_enable_role_creation');
+				$q->addInsert('config_value', '');
+				$q->addInsert('config_group', 'LDAP_role_creation');
+				$q->addInsert('config_type', 'checkbox');
+				$q->exec();
+				$q->clear();
+			}
+			
 			if(!isset($dPconfig['ldap_variable_for_retrieve_roles_list'])){
 				$q = new DBQuery();
 				$q->addTable('config');
 				$q->addInsert('config_name', 'ldap_variable_for_retrieve_roles_list');
 				$q->addInsert('config_value', 'memberof');
-				$q->addInsert('config_group', 'ldap');
+				$q->addInsert('config_group', 'LDAP_role_creation');//ldap
 				$q->addInsert('config_type', 'select');
 				$q->exec();
 				$q->clear();
 			}
+			
 			
 			//fix retrieve_roles_list select for config
 			$q = new DBQuery();
@@ -135,7 +148,7 @@ class CLDAPExtended extends CDpObject {
 				$q->addTable('config');
 				$q->addInsert('config_name', 'ldap_template_role_for_copy_permissions');
 				$q->addInsert('config_value', 'normal');
-				$q->addInsert('config_group', 'ldap');
+				$q->addInsert('config_group', 'LDAP_role_creation');//ldap
 				$q->addInsert('config_type', 'text');
 				$q->exec();
 				$q->clear();
@@ -146,7 +159,7 @@ class CLDAPExtended extends CDpObject {
 				$q->addTable('config');
 				$q->addInsert('config_name', 'ldap_query_for_select_dotproject_groups');
 				$q->addInsert('config_value', '(&(objectclass=posixGroup)(cn=DP_*))');
-				$q->addInsert('config_group', 'ldap');
+				$q->addInsert('config_group', 'LDAP_role_creation');//ldap
 				$q->addInsert('config_type', 'text');
 				$q->exec();
 				$q->clear();

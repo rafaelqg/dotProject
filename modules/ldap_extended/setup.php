@@ -21,12 +21,9 @@ if (@$a == 'setup') {
 class CSetupLDAPExtended {
 
      function install() {
-		/*
-		$q = new DBQuery();
-		$q->createTable('ldap_extended');
-		$q->createDefinition("");
-		$q->exec($sql);
-		*/
+		 require_once DP_BASE_DIR ."/modules/ldap_extended/ldap_extended.class.php";
+		 $ldapExt= new CLDAPExtended();
+		 return true;
  }
 
 
