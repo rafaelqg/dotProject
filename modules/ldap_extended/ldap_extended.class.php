@@ -178,10 +178,13 @@ class CLDAPExtended extends CDpObject {
 		
 		
 		public function deleteRolesNotOnLDAPAnymore($userName,$dpRolesPrefix){
+			global $debugMode;
 			$userRoles=$this->getUserDotProjectRoles($userName);
 			foreach($userRoles as $role){
 				if( strpos($role,$dpRolesPrefix) !== FALSE){
-					echo "Removing LDAP role ($role) from user ($userName)";
+					if($debugMode){
+						echo "Removing LDAP role ($role) from user ($userName)";
+					}
 					$this->deleteRoleFromUser($userName,$role);
 				}
 			}		
@@ -359,7 +362,7 @@ class CLDAPExtended extends CDpObject {
 	
 	public function addRoleToUser($user_name, $role_name){
 	
-		global $AppUI;
+		global $AppUI,$debugMode;
 		//SELECT group_id, aro_id FROM dotproject_ldap.dotp_gacl_groups_aro_map;
 		//SELECT id, name FROM dotproject_ldap.dotp_gacl_aro;
 		//SELECT id,name,value FROM dotproject_ldap.dotp_gacl_aro_groups;
@@ -369,7 +372,9 @@ class CLDAPExtended extends CDpObject {
 			//$ldapExt->createDPRole($role_name);
 			$this->createDPRole($role_name);
 			$groupdId = $this->getRoleId($role_name);
-			echo "<br />CREATED ROLE: $role_name (ID: $groupdId) <br/>";
+			if($debugMode){
+				echo "<br />CREATED ROLE: $role_name (ID: $groupdId) <br/>";
+			}
 			$defaultPermissions=$dPconfig['ldap_template_role_for_copy_permissions'];
 			if($defaultPermissions==null || $defaultPermissions==""){
 				$defaultPermissions="normal";
@@ -426,6 +431,7 @@ class CLDAPExtended extends CDpObject {
 	//http://www.forumsys.com/tutorials/integration-how-to/ldap/online-ldap-test-server/)
 	//To be utilized in LDAP when ismemberof (posix) is available
 	public  function get_groups($user) {
+		global $debugMode;
 		// Active Directory server
 		$ldap_host = $this->ldap_host;//replace for a dynamic value
 		$ldap_port=$this->ldap_port;
@@ -446,11 +452,11 @@ class CLDAPExtended extends CDpObject {
 		ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
 
 		if(ldap_bind($ldap,$ldap_search_user,$password)){
-			echo "<br />Bind LDAP successfully.<br />";
+			if($debugMode){echo "<br />Bind LDAP successfully.<br />";}
 		}else if (ldap_bind($ldap)) {
-			echo "<br />Bind LDAP successfully.<br />";
+			if($debugMode){echo "<br />Bind LDAP successfully.<br />";}
 		}else{
-			die("Could not bind to LDAP");
+			if($debugMode){echo "Could not bind to LDAP";}
 		}
 		// Search AD based on filter eg "DP_*" "DP_it" -> "it" role
 		$results = ldap_search($ldap,$ldap_dn,"(uid=$user)",array($this->ldap_variable_for_retrieve_roles_list));//"memberof"
@@ -459,7 +465,7 @@ class CLDAPExtended extends CDpObject {
 		// No information found, bad user
 		//print_r($entries);
 		if($entries['count'] == 0){
-			echo "<br />No group found querying for memberof attribute.<br />";
+			if($debugMode){echo "<br />No group found querying for memberof attribute.<br />";}
 			return false;
 		} 
 		
@@ -473,12 +479,12 @@ class CLDAPExtended extends CDpObject {
 		// We need to look up the primary group, get list of all groups
 		//$results2 = ldap_search($ldap,$ldap_dn,"(objectcategory=group)",array("distinguishedname","primarygrouptoken"));
 		$results2 = ldap_search($ldap,$ldap_dn,$this->ldap_query_for_select_dotproject_groups,array("distinguishedname","primarygrouptoken"));//"(&(objectclass=posixGroup)(cn=DP_*))"
-		echo "<br />Filtered Group Search:<br />";
-		print_r($results2); 
-		
-		//to-do: format results2 to contains a single field with $e['distinguishedname'][0] 
-		
-		echo "<br />";
+		if($debugMode){
+			echo "<br />Filtered Group Search:<br />";
+			print_r($results2); 	
+			//to-do: format results2 to contains a single field with $e['distinguishedname'][0] 	
+			echo "<br />";
+		}
 		//$entries2 = ldap_get_entries($ldap, $results2);
 		//
 		//// Remove extraneous first entry
@@ -503,28 +509,31 @@ class CLDAPExtended extends CDpObject {
 	**/
 	
 	public function getUsersByGroup($group) {
+		global $debugMode;
 		$users= array();//return variable. Here will be added all users found on this group
 		// Connect to AD
 		$ldap = ldap_connect($this->ldap_host,$this->ldap_port) or die("Could not connect to LDAP");
 		ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, $this->ldap_version);///must be version 3
 		ldap_set_option($ldap, LDAP_OPT_REFERRALS, 0);
-		echo "<br/>Variables:";
-		echo "<br/>ldap_host: {$this->ldap_host}";
-		echo "<br/>ldap_port: {$this->ldap_port}";
-		echo "<br/>ldap_version: {$this->ldap_version}";
-		echo "<br/>ldap_dn: {$this->ldap_dn}";
-		echo "<br/>ldap_pasSword: {$this->ldap_password}";
+		if($debugMode){
+			echo "<br/>Variables:";
+			echo "<br/>ldap_host: {$this->ldap_host}";
+			echo "<br/>ldap_port: {$this->ldap_port}";
+			echo "<br/>ldap_version: {$this->ldap_version}";
+			echo "<br/>ldap_dn: {$this->ldap_dn}";
+			echo "<br/>ldap_pasSword: {$this->ldap_password}";
+		}
 		if(ldap_bind($ldap,$ldapExt->ldap_search_user,$this->ldap_password)){
-			echo "<br />Bind LDAP successfully.<br />";
-		}else if (ldap_bind($ldap)) {
-			echo "<br />Bind LDAP successfully.<br />";
+			if($debugMode){echo "<br />Bind LDAP successfully.<br />";}
+		}else if (ldap_bind($ldap)) { 
+			if($debugMode){echo "<br />Bind LDAP successfully.<br />";}
 		}else{
-			die("Could not bind to LDAP");
+			if($debugMode){die("Could not bind to LDAP");}
 		} 
 		
 		//search for queried group
 		// Search AD
-		echo "<br />Looking for LDAP group  \"" . $group . "\"<br />";
+		if($debugMode){echo "<br />Looking for LDAP group  \"" . $group . "\"<br />";}
 		$results = ldap_search($ldap,$group,"(cn=*)" );
 		if($results!=""){
 			$entries = ldap_get_entries($ldap, $results);
@@ -540,7 +549,7 @@ class CLDAPExtended extends CDpObject {
 				}
 			} 
 		}else{
-			echo "<br />Group \"".$group ."\" not found on LDAP<br />";
+			if($debugMode){echo "<br />Group \"".$group ."\" not found on LDAP<br />";}
 		}
 		return $users;
 	}

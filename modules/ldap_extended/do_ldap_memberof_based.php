@@ -12,12 +12,14 @@ $users=$ldapExt->getDotProjectUsers();
 ?>
 Processing LDAP using "member_of" attribute:<br /><br />
 <?php
-echo "<br />Dotproject users:<br /><pre>";
-print_r($users);
-echo "</pre><br /><hr /><br />";
+if($debugMode){
+	echo "<br />Dotproject users:<br /><pre>";
+	print_r($users);
+	echo "</pre><br /><hr /><br />";
+}
 	foreach($users as $user){
 		//missing step to clear all user roles that are LDAP binded.
-		echo "<br />Processing user: ". $user."<br/>";
+		if($debugMode){echo "<br />Processing user: ". $user."<br/>";}
 		
 		$ldap_search_output=$ldapExt->get_groups($user); 
 		//$TEST_ldap_search_output=array ( 0 => array ("memberof" => array ( 0 => "cn=palo_it_admin,ou=Groups,dc=debortoli,dc=private",1 => "cn=DP_it,ou=Groups,dc=debortoli,dc=private",2 => "cn=risk_management,ou=Groups,dc=debortoli,dc=private", 3 => "cn=DP_quality,ou=Groups,dc=debortoli,dc=private" ))); 
@@ -30,19 +32,22 @@ echo "</pre><br /><hr /><br />";
 		$ldapExt->deleteRolesNotOnLDAPAnymore($user,$prefix);
 		
 		if(sizeof($groups)==0 || !$groups){
-			echo "<br />No group found on LDAP<br/>";
+			if($debugMode){echo "<br />No group found on LDAP<br/>";}
 		}else{
-			echo "<br/>Groups<br />";
-			print_r($groups);
+			if($debugMode){
+				echo "<br/>Groups<br />";
+				print_r($groups);
+			}
 			foreach($groups as $group){
 				$ldapExt->addRoleToUser($user, $group);
 			}
 		}	
 	}
-die();
+//die();
 
 
-function getUserDPRoles($prefix,$ldap_search_output){								
+function getUserDPRoles($prefix,$ldap_search_output){	
+	global $debugMode;
 	//foreach($ldap_search_output as $i){
 	//	echo "<br/>foo: ".$i;
 	//}
@@ -63,7 +68,7 @@ function getUserDPRoles($prefix,$ldap_search_output){
 					$posPrefix=strpos($cn,$prefix);
 					if($posPrefix!==false){
 						$dpRoleName=substr ( $cn, $posPrefix, strlen($cn));
-						echo "<br/>CN: " . $dpRoleName;
+						if($debugMode){echo "<br/>CN: " . $dpRoleName;}
 						array_push($roles,$dpRoleName);
 					}
 				}
