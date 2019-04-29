@@ -107,9 +107,10 @@ class Gantt {
         );
 
         if ($display_option === 'this_month') {
+            $firstOfMonth = strToTime(date('Ym01'));
             $this->filters = array_merge($this->filters, array(
-                "sdate" => date('Ym01'),
-                "edate" => date('Ymt')
+                "sdate" => date("Ymd", $firstOfMonth),
+                "edate" => date("Ymd", strtotime("+1 month", $firstOfMonth))
             ));
             return;
         }
@@ -173,6 +174,13 @@ class Gantt {
         } else if ($this->filters["proFilter"] != '-1') {
             $q->addWhere('project_status = ' . $this->filters["proFilter"]);
         }
+
+        if ($this->filters["sdate"] != 0 && $this->filters["edate"] != 0) {
+            $sdate = (new CDate($this->filters["sdate"]))->format(FMT_DATETIME_MYSQL);
+            $edate = (new CDate($this->filters["edate"]))->format(FMT_DATETIME_MYSQL);
+            $q->addWhere("project_start_date <= '$edate'");
+            $q->addWhere("project_end_date >= '$sdate'");
+        }
         
         if ($this->filters["user_id"] && $this->filters["m_orig"] == 'admin' && $this->filters["a_orig"] == 'viewuser') {
             $q->addWhere('project_owner = ' . $this->filters["user_id"]);
@@ -218,14 +226,13 @@ class Gantt {
         if ($this->filters["project_id"]) {
                 $q->addWhere('task_project = '.$this->filters["project_id"]);
         }
-        if ($this->filters["sdate"] != 0) {
-            $date = (new CDate($this->filters["sdate"]))->format(FMT_DATETIME_MYSQL);
-            $q->addWhere("task_start_date > '$date'");
+        if ($this->filters["sdate"] != 0 && $this->filters["edate"] != 0) {
+            $sdate = (new CDate($this->filters["sdate"]))->format(FMT_DATETIME_MYSQL);
+            $edate = (new CDate($this->filters["edate"]))->format(FMT_DATETIME_MYSQL);
+            $q->addWhere("task_start_date <= '$edate'");
+            $q->addWhere("task_end_date >= '$sdate'");
         }
-        if ($this->filters["edate"] != 0) {
-            $date = (new CDate($this->filters["edate"]))->format(FMT_DATETIME_MYSQL);
-            $q->addWhere("task_start_date < '$date'");
-        }
+
         switch ($f) {
             case 'all':
                     $q->addWhere('task_status > -1');

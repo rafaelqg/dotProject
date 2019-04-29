@@ -233,10 +233,21 @@ echo $AppUI->_('Low Priority Tasks'); ?></label>
 </tr>
 <?php } ?>
 <tr>
-	<td align="center" valign="bottom" colspan="7">
-		<a href='javascript:showThisMonth()'><?php echo $AppUI->_('show this month'); ?></a> : 
-		<a href='javascript:showFullProject()'><?php 
-echo (($a == 'todo') ? $AppUI->_('show all') : $AppUI->_('show full project')); ?></a>
+<td align="center" valign="bottom" colspan="12"><?php
+		if ($display_option != "this_month") {
+			echo "<a href='javascript:showThisMonth()'>" . $AppUI->_('show this month') . "</a>";
+		} else {
+			echo "<strong>" . $AppUI->_('show this month') . "</strong>";
+		}
+
+		echo " : ";
+		
+		if ($display_option != "all") {
+			echo "<a href='javascript:showFullProject()'>" . $AppUI->_('show full project') . "</a>";
+		} else {
+			echo "<strong>" . $AppUI->_('show all') . "</strong>";
+		}
+		?><br />
 	</td>
 </tr>
 
