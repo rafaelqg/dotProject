@@ -91,7 +91,7 @@ class Gantt {
         $display_option = dPgetCleanParam($_POST, 'display_option', 'this_month');
 
         $this->filters = array(
-            "project_id" => intval(dPgetParam($_REQUEST, 'project_id')),
+            "project_id" => intval(dPgetParam($_REQUEST, 'project_id'), null),
             "user_id" => intval(dPgetParam($_REQUEST, 'user_id', $AppUI->user_id)),
             "proFilter" => (int)dPgetParam($_REQUEST, 'proFilter', '-1'),
             "company_id" => intval(dPgetParam($_REQUEST, 'company_id', 0)),
@@ -215,7 +215,7 @@ class Gantt {
     /**
      * Get the project tasks from the db and format them for a gantt chart
      */
-    private function getProjectTasks($projectID) {
+    private function getProjectTasks($projectID = null) {
         global $AppUI;
 
         $q = new DBQuery;
@@ -223,8 +223,11 @@ class Gantt {
         $q->addQuery('t.task_id, task_parent, task_name, task_start_date, task_end_date, task_duration, task_duration_type, task_priority, task_percent_complete, task_order, task_project, task_milestone, project_name, task_dynamic');
         $q->addJoin('projects', 'p', 'project_id = t.task_project');
         $q->addWhere('project_status != 7');
-        if ($this->filters["project_id"]) {
-                $q->addWhere('task_project = '.$this->filters["project_id"]);
+        if ($projectID == null) {
+            $projectID = $this->filters["project_id"];
+        }
+        if ($projectID != null) {
+            $q->addWhere("task_project = $projectID");
         }
         if ($this->filters["sdate"] != 0 && $this->filters["edate"] != 0) {
             $sdate = (new CDate($this->filters["sdate"]))->format(FMT_DATETIME_MYSQL);
