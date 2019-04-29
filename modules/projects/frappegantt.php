@@ -53,6 +53,7 @@ class Gantt {
             case Gantt::ListProjects:
                 $this->getProjects();
                 $this->taskClickURL = "index.php?m=projects&a=view&project_id=%id%";
+                $this->viewID = 'projects';
             break;
             case Gantt::ListProjectTasks:
                 $this->getProjectTasks($params["projectid"]);
