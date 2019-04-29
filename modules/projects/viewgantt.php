@@ -202,11 +202,21 @@ echo $AppUI->_('next');?>" border="0" />
 			</td>
 		</tr>
 		<tr>
-			<td align="center" valign="bottom" colspan="12">
-				<?php 
-echo ("<a href='javascript:showThisMonth()'>" . $AppUI->_('show this month') 
-	. "</a> : <a href='javascript:showFullProject()'>" . $AppUI->_('show all') . "</a><br />"); 
-?>
+			<td align="center" valign="bottom" colspan="12"><?php
+				if ($display_option != "this_month") {
+					echo "<a href='javascript:showThisMonth()'>" . $AppUI->_('show this month') . "</a>";
+				} else {
+					echo "<strong>" . $AppUI->_('show this month') . "</strong>";
+				}
+
+				echo " : ";
+				
+				if ($display_option != "all") {
+					echo "<a href='javascript:showFullProject()'>" . $AppUI->_('show all') . "</a>";
+				} else {
+					echo "<strong>" . $AppUI->_('show all') . "</strong>";
+				}
+				?><br />
 			</td>
 		</tr>
 		</table>
