@@ -254,7 +254,7 @@ echo $AppUI->_('Low Priority Tasks'); ?></label>
 </table>
 </form>
 
-<table cellspacing="0" cellpadding="0" border="1" align="center" width="100%" style="table-layout:fixed;">
+<table cellspacing="0" cellpadding="0" border="0" align="center" width="100%" style="table-layout:fixed;">
 <tr>
 	<td>
 <?php
