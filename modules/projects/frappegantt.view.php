@@ -22,6 +22,40 @@
                 gantt.render();
             }, 100);
         }
+        var getLastView = function() {
+            if (typeof(Storage) !== "undefined") {
+                var views = JSON.parse(localStorage.getItem("frappe-views"));
+                if (views === null) {
+                    return null;
+                }
+                var viewID = <?php echo $this->viewID === null ? "null" : "\"$this->viewID\"" ?>;
+                if (viewID !== null) {
+                    if (typeof views[viewID] === 'string') {
+                        return views[viewID];
+                    };
+                } else {
+                    if (typeof views['default'] === 'string') {
+                        return views['default'];
+                    };
+                }
+            }
+            return null;
+        }
+        var saveCurrentView = function(mode) {
+            if (typeof(Storage) !== "undefined") {
+                var views = JSON.parse(localStorage.getItem("frappe-views"));
+                if (views === null) {
+                    views = {};
+                }
+                var viewID = <?php echo $this->viewID === null ? "null" : "\"$this->viewID\"" ?>;
+                if (viewID !== null) {
+                    views[viewID] = mode;
+                } else {
+                    views['default'] = mode;
+                }
+                localStorage.setItem("frappe-views", JSON.stringify(views));
+            }
+        }
         var id = "<?php echo $random ?>";
         var controls = document.getElementById('gantt-controls-'+id);
         var buttons = controls.getElementsByTagName('BUTTON');
@@ -50,7 +84,12 @@
             buttons[buttonID].onclick = function(e) {
                 var button = e.target;
                 gantt.change_view_mode(button.getAttribute('data-view'));
+                saveCurrentView(button.getAttribute('data-view'));
             }
+        }
+        var viewMode = getLastView();
+        if (viewMode != null) {
+            gantt.change_view_mode(viewMode);
         }
     })();
 </script>
