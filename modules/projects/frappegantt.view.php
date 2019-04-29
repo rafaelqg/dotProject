@@ -9,6 +9,7 @@
     <button class="button" data-view="Month"><?php echo $AppUI->_("Month"); ?></button>
     <button class="button" data-view="Year"><?php echo $AppUI->_("Year"); ?></button>
 </p>
+<p id="gantt-message-<?php echo $random ?>"></p>
 <svg id="gantt-<?php echo $random ?>"></svg>
 <script>
     (function(){
@@ -93,6 +94,9 @@
             if (viewMode != null) {
                 gantt.change_view_mode(viewMode);
             }
+        } else {
+            var messageBox = document.getElementById("gantt-message-<?php echo $random ?>");
+            messageBox.innerHTML = "There are no items to display";
         }
     })();
 </script>
