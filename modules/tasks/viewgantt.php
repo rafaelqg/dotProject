@@ -243,7 +243,7 @@ echo $AppUI->_('Low Priority Tasks'); ?></label>
 		echo " : ";
 		
 		if ($display_option != "all") {
-			echo "<a href='javascript:showFullProject()'>" . $AppUI->_('show full project') . "</a>";
+			echo "<a href='javascript:showFullProject()'>" . $AppUI->_('show all') . "</a>";
 		} else {
 			echo "<strong>" . $AppUI->_('show all') . "</strong>";
 		}

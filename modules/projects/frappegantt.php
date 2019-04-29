@@ -12,6 +12,7 @@ class Gantt {
     const ListProjectTasks = 2;
     private static $headerWritten = false;
     private $taskClickURL = "";
+    private $viewID = null;
 
     /**
      * Create a gantt for projects
@@ -56,6 +57,7 @@ class Gantt {
             case Gantt::ListProjectTasks:
                 $this->getProjectTasks($params["projectid"]);
                 $this->taskClickURL = "index.php?m=tasks&a=view&task_id=%id%";
+                $this->viewID = 'projectTasks'.$params["projectid"];
             break;
         }
     }
