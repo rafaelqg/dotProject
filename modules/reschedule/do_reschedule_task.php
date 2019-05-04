@@ -35,7 +35,7 @@ function updateTaskDates($taskId,$interval,$direction){
 				$newTaskStartDate->modify($direction. $interval->days. " day");
 				$newTaskEndDate->modify($direction. $interval->days. " day");
 				
-				global $currentProjectStartDate, $currentProjectEndDate;
+				global $currentProjectStartDate, $currentProjectEndDate, $originalProjectEndDate, $originalProjectStartDate;
 				if($newTaskStartDate< $currentProjectStartDate){
 					$currentProjectStartDate=$newTaskStartDate;
 				}
@@ -54,10 +54,15 @@ function updateTaskDates($taskId,$interval,$direction){
 			$q->exec();
 			$q->clear();		
 			
-			global $AppUI;
+			global $AppUI, $outputString;
 			$df = $AppUI->getPref('SHDATEFORMAT');
 			$userDateFormat=strtolower($df); 
 			$df=str_replace("%","",$df);//prepare for printing correctly
+			$outputString.= "\n\nTask:  ".$taskDescription;//. "($taskId)";
+			$outputString.= "\nStart date:  ". $currentTaskStartDate->format($df);
+			$outputString.= " => ". $newTaskStartDate->format($df);
+			$outputString.= "\nEnd date:  ". $currentTaskEndDate->format($df);
+			$outputString.= " => ". $newTaskEndDate->format($df);
 			?>
 			<table width="100%" class="tbl">
 				<tr>
@@ -160,10 +165,19 @@ if($start_date != ""){
 	$projects = db_loadList($sql);//$q->loadHashList();
 	$currentProjectStartDate=null;
 	$currentProjectEndDate=null;
+	$originalProjectStartDate=null;
+	$originalProjectEndDate =null;
 	foreach($projects as $project){
 			$currentProjectStartDate = new DateTime($project["project_start_date"]);
 			$currentProjectEndDate = new DateTime($project["project_end_date"]);
+			$originalProjectStartDate = new DateTime($project["project_start_date"]);
+			$originalProjectEndDate = new DateTime($project["project_end_date"]);
 	}
+	
+	
+	$outputString="";
+	$outputString.="Task rescheduled to " . $newTaskStartDate->format($df);
+	$outputString.= "\n\nUpdated tasks:\n";
 	
 	foreach($tasks as $task){
 			$project_id= $task["task_project"];
@@ -175,7 +189,7 @@ if($start_date != ""){
 	}
 	
 	//update project new dates in database 
-	if($currentProjectStartDate != null && $currentProjectEndDate!=null){
+	if($currentProjectStartDate != null && $currentProjectEndDate!=null && $originalProjectStartDate != null &&  ($currentProjectStartDate->format("Y-m-d") != $originalProjectStartDate->format($df)) ){
 		$q = new DBQuery();
 		$q->addTable('projects');
 		$q->addUpdate('project_start_date', $currentProjectStartDate->format("Y-m-d"));
@@ -183,14 +197,23 @@ if($start_date != ""){
 		$q->addWhere('project_id='.$project_id);
 		$q->exec();
 		$q->clear();	
+		/*
+		$outputString.= "\n\nProject dates updated:";
+		$outputString.= "\nStart date:  ". $originalProjectStartDate->format($df);
+		$outputString.= " => ". $currentProjectStartDate->format($df);
+		$outputString.= "\nEnd date:  ". $originalProjectEndDate->format($df);
+		$outputString.= " => ". $currentProjectEndDate->format($df);
+		*/
 	}
+	
+	$AppUI->setMsg( $outputString );
 	?>
 	<br />
 	<a href="?m=projects&a=view&project_id=<?php echo $project_id ?>" align="center">Open Project</a>
+	
 	<?php
 }else{
-	echo "Date not informed.";
+	$AppUI->setMsg( "Date not informed!" , UI_MSG_WARNING, true);
 }
-
-die();
+$AppUI->redirect();
 ?>

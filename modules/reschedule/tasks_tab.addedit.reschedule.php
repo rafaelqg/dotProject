@@ -60,11 +60,6 @@ foreach ($tasks as $row) {
 	$end_date = ((intval(@$row['task_end_date'])) ? new CDate($row['task_end_date']) : null);
 	?>
 	<tr>
-		<td>
-			<a href="?m=tasks&a=view&task_id=<?php echo $row["task_id"] ?>">
-				<?php echo $row["task_name"]; ?>
-			</a>
-		</td>
 		<td align="center">
 			<?php echo (htmlspecialchars($start_date ? $start_date->format($df) : '-')); ?>
 		</td>
@@ -75,7 +70,7 @@ foreach ($tasks as $row) {
 			<form action="?m=reschedule" method="POST"> 
 				<input type="hidden" name="dosql" value="do_reschedule_task" /> 
 				<input type="hidden" name="task_id" value="<?php echo $row['task_id']; ?>" />
-				<input type="text" name="new_start_date_<?php echo $row['task_id'] ?>" id="new_start_date_<?php echo $row['task_id'] ?>" />
+				<input type="text" name="new_start_date_<?php echo $row['task_id'] ?>" id="new_start_date_<?php echo $row['task_id'] ?>" autocomplete="off" />
 				<script>
 					var startDate=document.getElementById("new_start_date_<?php echo $row['task_id']?>");
 					$(startDate).datepicker({dateFormat: "<?php echo $_SESSION["dateFormat"] ?>",showButtonPanel: true, firstDay: 1, changeYear:true, changeMonth:true} );
