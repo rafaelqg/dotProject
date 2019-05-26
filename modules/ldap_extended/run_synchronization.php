@@ -3,6 +3,7 @@ global $dPconfig, $AppUI;
 $syncType=$dPconfig['ldap_variable_for_retrieve_roles_list'];
 $runEnabled=$dPconfig['ldap_enable_role_creation'];
 $debugMode=false;
+global $username;
 if(strtolower($runEnabled) == "true" || strtolower($runEnabled) == 1 ){ 
 	if(strtolower($syncType)=="memberof"){ 
 		require_once DP_BASE_DIR ."/modules/ldap_extended/do_ldap_memberof_based.php";
@@ -15,4 +16,5 @@ if(strtolower($runEnabled) == "true" || strtolower($runEnabled) == 1 ){
 	echo $msg;
 	$AppUI->setMsg($AppUI->_($msg,UI_OUTPUT_HTML), UI_MSG_ERROR, true);
 }
+
 ?>

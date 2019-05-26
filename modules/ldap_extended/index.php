@@ -130,6 +130,20 @@ LDAP Extended Admin console
 	</td>
 </tr>
 
+<tr>
+	<th>
+	Users to synchronize
+	</th>
+	
+	<td>
+	<?php 
+		global $dPconfig;
+		
+		echo $ldapExt->ldap_users_to_synchronize?"Single/Current":"Global";
+	?>
+	</td>
+</tr>
+
 
 </table>
 

@@ -9,39 +9,46 @@ $ldapExt= new CLDAPExtended();
 //$ldapExt->printLDAPParameters();
 $dpRoles=$ldapExt->getDotProjectRoles();
 $users=$ldapExt->getDotProjectUsers();
-?>
-Processing LDAP using "member_of" attribute:<br /><br />
-<?php
+$currentUserOnly=$ldapExt->ldap_synchronization_single_user;
 if($debugMode){
-	echo "<br />Dotproject users:<br /><pre>";
-	print_r($users);
-	echo "</pre><br /><hr /><br />";
+	?>
+		Processing LDAP using "member_of" attribute:<br /><br />
+		<br />Dotproject users:<br />
+		<pre> 
+			<?php	print_r($users); ?> 
+		</pre>
+		<br /><hr /><br />
+	<?php
 }
+	global $username;
 	foreach($users as $user){
-		//missing step to clear all user roles that are LDAP binded.
-		if($debugMode){echo "<br />Processing user: ". $user."<br/>";}
-		
-		$ldap_search_output=$ldapExt->get_groups($user); 
-		//$TEST_ldap_search_output=array ( 0 => array ("memberof" => array ( 0 => "cn=palo_it_admin,ou=Groups,dc=debortoli,dc=private",1 => "cn=DP_it,ou=Groups,dc=debortoli,dc=private",2 => "cn=risk_management,ou=Groups,dc=debortoli,dc=private", 3 => "cn=DP_quality,ou=Groups,dc=debortoli,dc=private" ))); 
-		//print_r($TEST_ldap_search_output);
-		$prefix=$ldapExt->ldap_dp_role_prefix;//"DP_";
-		//$groups=getUserDPRoles($prefix,$TEST_ldap_search_output);
-		$groups=getUserDPRoles($prefix,$ldap_search_output);
-	
-		//clean groups before add new ones
-		$ldapExt->deleteRolesNotOnLDAPAnymore($user,$prefix);
-		
-		if(sizeof($groups)==0 || !$groups){
-			if($debugMode){echo "<br />No group found on LDAP<br/>";}
-		}else{
-			if($debugMode){
-				echo "<br/>Groups<br />";
-				print_r($groups);
-			}
-			foreach($groups as $group){
-				$ldapExt->addRoleToUser($user, $group);
-			}
-		}	
+		if($debugMode){ echo "Comparing: ". $username ." with ". $user;	}
+		if(!$currentUserOnly || ($currentUserOnly && strtolower ($username)==strtolower ($user))){
+			//missing step to clear all user roles that are LDAP binded.
+			if($debugMode){echo "<br />Processing user: ". $user."<br/>";}
+				
+				$ldap_search_output=$ldapExt->get_groups($user); 
+				//$TEST_ldap_search_output=array ( 0 => array ("memberof" => array ( 0 => "cn=palo_it_admin,ou=Groups,dc=debortoli,dc=private",1 => "cn=DP_it,ou=Groups,dc=debortoli,dc=private",2 => "cn=risk_management,ou=Groups,dc=debortoli,dc=private", 3 => "cn=DP_quality,ou=Groups,dc=debortoli,dc=private" ))); 
+				//print_r($TEST_ldap_search_output);
+				$prefix=$ldapExt->ldap_dp_role_prefix;//"DP_";
+				//$groups=getUserDPRoles($prefix,$TEST_ldap_search_output);
+				$groups=getUserDPRoles($prefix,$ldap_search_output);
+			
+				//clean groups before add new ones
+				$ldapExt->deleteRolesNotOnLDAPAnymore($user,$prefix);
+				
+				if(sizeof($groups)==0 || !$groups){
+					if($debugMode){echo "<br />No group found on LDAP<br/>";}
+				}else{
+					if($debugMode){
+						echo "<br/>Groups<br />";
+						print_r($groups);
+					}
+					foreach($groups as $group){
+						$ldapExt->addRoleToUser($user, $group);
+					}
+				}	
+		}
 	}
 //die();
 

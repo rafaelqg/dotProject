@@ -27,6 +27,7 @@ class CLDAPExtended extends CDpObject {
 		var $ldap_template_role_for_copy_permissions;
 		var $ldap_query_for_select_dotproject_groups; 
 		var $ldap_enable_synchronization; 
+		var $ldap_users_to_synchronize; 
 		
 		function __construct() {
 			parent::__construct('ldap_extended', 'ldap_extended_id');
@@ -38,7 +39,7 @@ class CLDAPExtended extends CDpObject {
 			$this->ldap_search_user= $dPconfig['ldap_search_user'];//"admin"
 			$this->ldap_password = $dPconfig['ldap_search_pass'];//"password"
 			$this->ldap_enable_synchronization = $dPconfig['ldap_enable_role_creation'];
-			
+			$this->ldap_users_to_synchronize=$dPconfig['ldap_users_to_synchronize']=="Global"?false:true;
 			$this->ldap_variable_for_retrieve_roles_list=strtolower($dPconfig['ldap_variable_for_retrieve_roles_list']);//memberof 
 			$this->ldap_template_role_for_copy_permissions=$dPconfig['ldap_template_role_for_copy_permissions'];//normal
 			$this->ldap_query_for_select_dotproject_groups=$dPconfig['ldap_query_for_select_dotproject_groups'];//(&(objectclass=posixGroup)(cn=DP_*))
@@ -90,6 +91,56 @@ class CLDAPExtended extends CDpObject {
 				$q->clear();
 			}
 			
+			
+			//add field for user select just current user (single user) or all users (global)
+			if(!isset($dPconfig['ldap_users_to_synchronize'])){
+				$q = new DBQuery();
+				$q->addTable('config');
+				$q->addInsert('config_name', 'ldap_users_to_synchronize');
+				$q->addInsert('config_value', 'memberof');
+				$q->addInsert('config_group', 'LDAP_role_creation');//ldap
+				$q->addInsert('config_type', 'select');
+				$q->exec();
+				$q->clear();
+				
+				
+				//fix options to select
+				
+				$q = new DBQuery();
+				$q->addQuery("config_id");
+				$q->addTable("config");
+				$q->addWhere("config_name='ldap_users_to_synchronize'");
+				$sql = $q->prepare();
+				$records= db_loadList($sql);
+				$configId=NULL;
+				foreach($records as $record){
+					$configId=$record[0];
+				}
+			
+				$q = new DBQuery();
+				$q->addQuery("config_list_id");
+				$q->addTable("config_list");
+				$q->addWhere("config_id=$configId");
+				$sql = $q->prepare();
+				$records= db_loadList($sql);
+			
+				if(sizeof($records)==0){
+					$q = new DBQuery();
+					$q->addTable('config_list');
+					$q->addInsert('config_id', $configId);
+					$q->addInsert('config_list_name', 'Single/Current');
+					$q->exec();
+					$q->clear();
+					
+					$q = new DBQuery();
+					$q->addTable('config_list');
+					$q->addInsert('config_id', $configId);
+					$q->addInsert('config_list_name', 'Global');
+					$q->exec();
+					$q->clear();
+				}
+					
+			}
 			
 			//fix retrieve_roles_list select for config
 			$q = new DBQuery();
@@ -523,9 +574,9 @@ class CLDAPExtended extends CDpObject {
 			echo "<br/>ldap_dn: {$this->ldap_dn}";
 			echo "<br/>ldap_pasSword: {$this->ldap_password}";
 		}
-		if(ldap_bind($ldap,$ldapExt->ldap_search_user,$this->ldap_password)){
+		if(@ldap_bind($ldap,$ldapExt->ldap_search_user,$this->ldap_password)){
 			if($debugMode){echo "<br />Bind LDAP successfully.<br />";}
-		}else if (ldap_bind($ldap)) { 
+		}else if (@ldap_bind($ldap)) { 
 			if($debugMode){echo "<br />Bind LDAP successfully.<br />";}
 		}else{
 			if($debugMode){die("Could not bind to LDAP");}
@@ -534,7 +585,7 @@ class CLDAPExtended extends CDpObject {
 		//search for queried group
 		// Search AD
 		if($debugMode){echo "<br />Looking for LDAP group  \"" . $group . "\"<br />";}
-		$results = ldap_search($ldap,$group,"(cn=*)" );
+		$results = @ldap_search($ldap,$group,"(cn=*)" );
 		if($results!=""){
 			$entries = ldap_get_entries($ldap, $results);
 			
