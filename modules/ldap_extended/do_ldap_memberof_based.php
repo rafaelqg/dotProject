@@ -61,7 +61,7 @@ function getUserDPRoles($prefix,$ldap_search_output){
 	//echo "$ldap_search_output: ".$ldap_search_output;
 	//$member_of_list=$ldap_search_output;
 	$roles=array();
-	if( isset($ldap_search_output)){
+	if( isset($ldap_search_output) && is_array($ldap_search_output)){
 		foreach($ldap_search_output as $ldap_member_of_string){
 			//echo $ldap_member_of_string;
 			$posCN=strpos($ldap_member_of_string,"cn=");

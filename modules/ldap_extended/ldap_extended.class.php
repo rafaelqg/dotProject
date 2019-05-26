@@ -525,7 +525,9 @@ class CLDAPExtended extends CDpObject {
 		$token = $entries[0]['primarygroupid'][0];
 		
 		// Remove extraneous first entry
-		array_shift($output);
+		if($output!= null && $output != "" && is_array($output)){
+			array_shift($output);
+		}
 		
 		// We need to look up the primary group, get list of all groups
 		//$results2 = ldap_search($ldap,$ldap_dn,"(objectcategory=group)",array("distinguishedname","primarygrouptoken"));
