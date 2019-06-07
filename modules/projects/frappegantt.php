@@ -133,6 +133,7 @@ class Gantt {
      * Get the projects from the db and format them for a gantt chart
      */
     private function getProjects() {
+	$js_user_id = ?><script>document.writeln(document.getElementById('filter-owner').value)</script>;<?php
         $q = new DBQuery;
         $pjobj = new CProject;
         global $dPconfig;
@@ -156,6 +157,7 @@ class Gantt {
                      . ', project_status');
         $q->addJoin('tasks', 't1', 'p.project_id = t1.task_project');
         $q->addJoin('companies', 'c1', 'p.project_company = c1.company_id');
+	$q->addWhere('user_id = ' . $js_user_id);
         if ($this->filters["department"] > 0) {
             $q->addJoin('project_departments', 'pd', 'pd.project_id = p.project_id');
             

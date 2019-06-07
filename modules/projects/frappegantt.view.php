@@ -8,6 +8,7 @@
     <button class="button" data-view="Week"><?php echo $AppUI->_("Week"); ?></button>
     <button class="button" data-view="Month"><?php echo $AppUI->_("Month"); ?></button>
     <button class="button" data-view="Year"><?php echo $AppUI->_("Year"); ?></button>
+    <button class="button" id="show-index">Show Index</button>
 </p>
 <p id="gantt-message-<?php echo $random ?>"></p>
 <svg id="gantt-<?php echo $random ?>"></svg>
@@ -99,6 +100,10 @@
             messageBox.innerHTML = "There are no items to display";
         }
     })();
+
+    document.getElementById('show-index').onclick = function() {
+        alert(document.getElementById('filter-owner').value)
+    }
 </script>
 <style>
     .gantt-controls .active {

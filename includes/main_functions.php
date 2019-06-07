@@ -27,14 +27,18 @@ function bestColor($bg, $lt='#ffffff', $dk='#000000') {
 ##
 ## returns a select box based on an key,value array where selected is based on key
 ##
-function arraySelect(&$arr, $select_name, $select_attribs, $selected, $translate=false) {
+function arraySelect(&$arr, $select_name, $select_attribs, $selected, $translate=false, $id='') {
 	GLOBAL $AppUI;
 	if (! is_array($arr)) {
 		dprint(__FILE__, __LINE__, 0, 'arraySelect called with no array');
 		return '';
 	}
 	reset($arr);
-	$s = ("\n" . '<select name="' . $select_name . '" ' . $select_attribs . '>');
+	if ($id != '') {
+	    $s = ("\n" . '<select id="' . $id . '" name="' . $select_name . '" ' . $select_attribs . '>');
+	} else {
+	    $s = ("\n" . '<select name="' . $select_name . '" ' . $select_attribs . '>');
+	}
 	$did_selected = 0;
 	foreach ($arr as $k => $v) {
 		if ($translate) {
