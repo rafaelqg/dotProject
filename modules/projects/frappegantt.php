@@ -2,6 +2,7 @@
 require_once DP_BASE_DIR . '/classes/query.class.php';
 
 
+
 /**
  * Frappe Gantt renderer for dotProject
  * 
@@ -13,6 +14,7 @@ class Gantt {
     private static $headerWritten = false;
     private $taskClickURL = "";
     private $viewID = null;
+
 
     /**
      * Create a gantt for projects
@@ -220,6 +222,7 @@ class Gantt {
      */
     private function getProjectTasks($projectID = null) {
         global $AppUI;
+	$f = defVal( @$_REQUEST['f'], 0 );
 
         $q = new DBQuery;
         $q->addTable('tasks', 't');
