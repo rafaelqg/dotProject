@@ -275,16 +275,26 @@ class Gantt {
         $task->setAllowedSQL($AppUI->user_id, $q);
 
         $proTasks = $q->loadHashList('task_id');
+	$q->clear();
+
         foreach ($proTasks as $task) {
             if ($task["task_start_date"] == null || $task["task_end_date"] == null) {
                 continue;
             }
+
+	    $q->addTable('task_dependencies', 'td');
+	    $q->addQuery('td.dependencies_req_task_id');
+	    $q->addWhere('td.dependencies_task_id = ' . $task['task_id']);
+	    $dependency = $q->loadResult();
+	    $q->clear();
+
             array_push($this->tasks, array(
                 "id" => $task["task_id"],
                 "name" => $task["task_name"],
                 "start" => $task["task_start_date"],
                 "end" => $task["task_end_date"],
-                "progress" => $task["task_percent_complete"]
+                "progress" => $task["task_percent_complete"],
+		"dependencies" => strval($dependency)
             ));
         }
     }
