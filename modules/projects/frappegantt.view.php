@@ -99,6 +99,37 @@
             messageBox.innerHTML = "There are no items to display";
         }
     })();
+    	/* Function for labels to follow container */
+    var div = document.getElementsByClassName('gantt-container')[0];
+    div.onscroll = function() {
+        Array.from(document.getElementsByClassName('bar-label')).forEach(function(labelItem) {
+            try {
+                var barWidth = labelItem.previousSibling.previousSibling.getWidth();
+                var barX = labelItem.previousSiblinb.previousSibling.getX()
+            }
+            catch {
+                var barWidth = labelItem.previousSibling.getBBox().width;
+                var barX = labelItem.previousSibling.getX();
+            }
+
+
+            if (div.scrollLeft > labelItem.getAttribute('data-initial-pos')) { // If user scrolls LEFT past label position
+                labelItem.setAttribute('x', div.scrollLeft+5);
+            } else if (div.scrollLeft + div.clientWidth - labelItem.getBBox().width < labelItem.getAttribute('data-initial-pos')) { // If user scrolls RIGHT past label position
+                labelItem.setAttribute('x', div.scrollLeft + div.clientWidth - labelItem.getBBox().width -5 );
+            } else {
+                labelItem.setAttribute('x', labelItem.getAttribute('data-initial-pos'));
+            }
+
+            if (barWidth > labelItem.getBBox().width) {
+                if (labelItem.getBBox().x < barX || labelItem.getBBox().x + labelItem.getBBox().width > barX + barWidth) { // If label is outside bounds of bar
+                    labelItem.classList.add('big');
+                } else {
+                    labelItem.classList.remove('big');
+                }
+            }
+        });
+    }
 </script>
 <style>
     .gantt-controls .active {

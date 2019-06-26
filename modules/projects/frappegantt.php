@@ -1,6 +1,6 @@
 <?php
 require_once DP_BASE_DIR . '/classes/query.class.php';
-
+require_once DP_BASE_DIR . '/modules/projects/projects.class.php';
 
 
 /**
@@ -41,7 +41,7 @@ class Gantt {
     public static function WriteHeader() {
         if (!Gantt::$headerWritten) {
             echo '<link rel="stylesheet" href="lib/frappe-gantt/frappe-gantt.css">
-            <script src="lib/frappe-gantt/frappe-gantt.min.js"></script>';
+            <script src="lib/frappe-gantt/frappe-gantt.js"></script>';
             Gantt::$headerWritten = true;
         }
     }
