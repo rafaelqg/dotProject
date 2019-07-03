@@ -41,6 +41,11 @@ if (isset($_POST['show_owner'])) {
     $showOwner = $_POST['show_owner'];
 }
 
+if (isset($_POST['department'])) {
+    $showDepartment = $_POST['department'];
+}
+$showDepartment = preg_replace('/company\_/', "", $showDepartment);
+
 if (isset($_POST['proFilter'])) {
 	$AppUI->setState('ProjectIdxFilter',  $_POST['proFilter']);
 }
@@ -226,7 +231,7 @@ echo $AppUI->_('next');?>" border="0" />
 		</table>
 		</form>
 
-		<?php Gantt::Projects($showOwner)->render(); ?>
+		<?php Gantt::Projects($showOwner, $showDepartment)->render(); ?>
 		</table>
 	</td>
 </tr>

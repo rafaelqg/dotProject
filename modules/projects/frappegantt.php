@@ -22,8 +22,8 @@ class Gantt {
      * 
      * @return Gantt
      */
-    public static function Projects($userid) {
-        return new Gantt(Gantt::ListProjects, ['userid'=>$userid]);
+    public static function Projects($userid, $departmentid) {
+        return new Gantt(Gantt::ListProjects, ['userid'=>$userid, 'departmentid'=>$departmentid]);
     }
 
     /**
@@ -64,9 +64,9 @@ class Gantt {
         $this->getFilters();
         switch ($type) {
             case Gantt::ListProjects:
-                $this->getProjects($params["userid"]);
+                $this->getProjects($params["userid"], $params["departmentid"]);
                 $this->taskClickURL = "index.php?m=projects&a=view&project_id=%id%";
-                $this->viewID = 'projects'.$params["userid"];
+                $this->viewID = 'projects'.$params["userid"].$params["departmentid"];
             break;
             case Gantt::ListProjectTasks:
                 $this->getProjectTasks($params["projectid"]);
@@ -147,7 +147,7 @@ class Gantt {
     /**
      * Get the projects from the db and format them for a gantt chart
      */
-    private function getProjects($userID) {
+    private function getProjects($userID, $departmentID) {
         $q = new DBQuery;
         $pjobj = new CProject;
         global $dPconfig;
@@ -173,6 +173,10 @@ class Gantt {
         $q->addJoin('companies', 'c1', 'p.project_company = c1.company_id');
         if ($userID != 0) {
             $q->addWhere('p.project_owner = ' . $userID);
+        }
+
+        if ($departmentID != 0) {
+            $q->addWhere('p.project_company = ' . $departmentID);
         }
         if ($this->filters["department"] > 0) {
             $q->addJoin('project_departments', 'pd', 'pd.project_id = p.project_id');
