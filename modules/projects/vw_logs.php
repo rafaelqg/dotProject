@@ -154,22 +154,7 @@ foreach ($logs as $row) {
 	$s .= $AppUI->showHTML('<td width="100" align="right">'.sprintf("%.2f", $row["task_log_hours"]) . '</td>');
 	$s .= $AppUI->showHTML('<td width="100">'.$row["task_log_costcode"].'</td>');
 	$s .= '<td>';
-
-// dylan_cuthbert: auto-transation system in-progress, leave these lines
-	$transbrk = "\n[translation]\n";
-	$descrip = $AppUI->showHTML(str_replace("\n", "<br />", $row['task_log_description']));
-	$tranpos = mb_strpos($descrip, str_replace("\n", "<br />", $transbrk));
-	if ($tranpos === false) $s .= $descrip;
-	else
-	{
-		$descrip = mb_substr($descrip, 0, $tranpos);
-		$tranpos = mb_strpos($row['task_log_description'], $transbrk);
-		$transla = mb_substr($row['task_log_description'], $tranpos + mb_strlen($transbrk));
-		$transla = trim(str_replace("'", '"', $transla));
-		$s .= $descrip."<div style='font-weight: bold; text-align: right'><a title='$transla' class='hilite'>[".$AppUI->_("translation")."]</a></div>";
-	}
-// end auto-translation code
-			
+        $s .= strip_tags($row['task_log_description'], '<br><p><span><b><strong><h1><h2><i><a><ol><ul><li><u><s><em>');
 	$s .= '</td>';
 	$s .= "\n\t<td>";
 	if ($canDelete) {
@@ -188,3 +173,30 @@ $s .= '</tr>';
 echo $s;
 ?>
 </table>
+<style>
+.ql-size-large {
+    font-size: 1.5em;
+}
+.ql-size-small {
+    font-size: 0.75em;
+}
+.ql-size-huge {
+    font-size: 2.5em;
+}
+.ql-font-monospace {
+    font-family: Monaco, Courier New, monospace;
+}
+.ql-font-serif {
+    font-family: Georgia, Times New Roman, serif;
+}
+.ql-align-center {
+    text-align: center;
+}
+.ql-align-right {
+    text-align: right;
+}
+.ql-align-justify {
+    text-align: justify;
+}
+
+</style>
