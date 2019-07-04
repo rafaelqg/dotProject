@@ -2232,22 +2232,22 @@ class CTask extends CDpObject
 
 		$subject = $prefix . ' ' .$msg . ' ' . $this->task_name . '::' . $project_name;
 		
-		$body = ($AppUI->_('Task Due', UI_OUTPUT_RAW) . ': ' . $msg . "\n" 
-				 . $AppUI->_('Project', UI_OUTPUT_RAW) . ': ' . $project_name . "\n" 
-				 . $AppUI->_('Task', UI_OUTPUT_RAW) . ': ' . $this->task_name . "\n" 
-				 . $AppUI->_('Start Date', UI_OUTPUT_RAW) . ': ' . $starts->format($df) . "\n" 
-				 . $AppUI->_('Finish Date', UI_OUTPUT_RAW) . ': ' . $expires->format($df) . "\n" 
+		$body = ($AppUI->_('Task Due', UI_OUTPUT_RAW) . ': ' . $msg . "\n<br>" 
+				 . $AppUI->_('Project', UI_OUTPUT_RAW) . ': ' . $project_name . "\n<br>" 
+				 . $AppUI->_('Task', UI_OUTPUT_RAW) . ': ' . $this->task_name . "\n<br>" 
+				 . $AppUI->_('Start Date', UI_OUTPUT_RAW) . ': ' . $starts->format($df) . "\n<br>" 
+				 . $AppUI->_('Finish Date', UI_OUTPUT_RAW) . ': ' . $expires->format($df) . "\n<br>" 
 				 . $AppUI->_('URL', UI_OUTPUT_RAW) . ': ' . DP_BASE_URL 
-				 . '/index.php?m=tasks&a=view&task_id=' . $this->task_id . '&reminded=1' . "\n\n" 
-				 . $AppUI->_('Resources', UI_OUTPUT_RAW) . ":\n");
+				 . '/index.php?m=tasks&a=view&task_id=' . $this->task_id . '&reminded=1' . "\n\n<br><br>" 
+				 . $AppUI->_('Resources', UI_OUTPUT_RAW) . ":\n<br>");
 		foreach ($contacts as $contact) {
 			if ($owner_is_not_assignee || $contact['contact_id'] != $owner_contact) {
 				$body .= ($contact['contact_first_name'] . ' ' . $contact['contact_last_name'] 
-						  . ' <' . $contact['contact_email'] . ">\n");
+						  . ' <' . $contact['contact_email'] . ">\n<br>");
 			}
 		}
-		$body .= ("\n" . $AppUI->_('Description', UI_OUTPUT_RAW) . ":\n" 
-				  . $this->task_description . "\n");
+		$body .= ("\n<br>" . $AppUI->_('Description', UI_OUTPUT_RAW) . ":\n<br>" 
+				  . $this->task_description . "\n<br>");
 		
 		$mail = new Mail;
 		// Send out those that require an individual email for each event
@@ -2393,22 +2393,22 @@ class CTask extends CDpObject
 		
 		$subject = $prefix . ' ' .$msg . ' ' . $this->task_name . '::' . $project_name;
 		
-		$body = ($AppUI->_('Task Due', UI_OUTPUT_RAW) . ': ' . $msg . "\n" 
-				 . $AppUI->_('Project', UI_OUTPUT_RAW) . ': ' . $project_name . "\n" 
-				 . $AppUI->_('Task', UI_OUTPUT_RAW) . ': ' . $this->task_name . "\n" 
-				 . $AppUI->_('Start Date', UI_OUTPUT_RAW) . ': ' . $starts->format($df) . "\n" 
-				 . $AppUI->_('Finish Date', UI_OUTPUT_RAW) . ': ' . $expires->format($df) . "\n" 
+		$body = ($AppUI->_('Task Due', UI_OUTPUT_RAW) . ': ' . $msg . "\n<br>" 
+				 . $AppUI->_('Project', UI_OUTPUT_RAW) . ': ' . $project_name . "\n<br>" 
+				 . $AppUI->_('Task', UI_OUTPUT_RAW) . ': ' . $this->task_name . "\n<br>" 
+				 . $AppUI->_('Start Date', UI_OUTPUT_RAW) . ': ' . $starts->format($df) . "\n<br>" 
+				 . $AppUI->_('Finish Date', UI_OUTPUT_RAW) . ': ' . $expires->format($df) . "\n<br>" 
 				 . $AppUI->_('URL', UI_OUTPUT_RAW) . ': ' . DP_BASE_URL 
-				 . '/index.php?m=tasks&a=view&task_id=' . $this->task_id . '&reminded=1' . "\n\n" 
-				 . $AppUI->_('Resources', UI_OUTPUT_RAW) . ":\n");
+				 . '/index.php?m=tasks&a=view&task_id=' . $this->task_id . '&reminded=1' . "\n\n<br><br>" 
+				 . $AppUI->_('Resources', UI_OUTPUT_RAW) . ":\n<br>");
 		foreach ($contacts as $contact) {
 			if ($owner_is_not_assignee || $contact['contact_id'] != $owner_contact) {
 				$body .= ($contact['contact_first_name'] . ' ' . $contact['contact_last_name'] 
-						  . ' <' . $contact['contact_email'] . ">\n");
+						  . ' <' . $contact['contact_email'] . ">\n<br>");
 			}
 		}
-		$body .= ("\n" . $AppUI->_('Description', UI_OUTPUT_RAW) . ":\n" 
-				  . $this->task_description . "\n");
+		$body .= ("\n<br>" . $AppUI->_('Description', UI_OUTPUT_RAW) . ":\n<br>" 
+				  . $this->task_description . "\n<br>");
 		
 		foreach ($contacts as $contact) {
 			$contact_batched = $contact['pref_user'] ? $contact['batched'] : $this->_default_batch_status;
