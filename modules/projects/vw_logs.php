@@ -75,7 +75,7 @@ function delIt2(id) {
 	<td width="1%" nowrap="nowrap"><input type="checkbox" name="hide_complete" id="hide_complete" <?php echo $hide_complete?'checked="checked"':''?> onchange="document.frmFilter.submit()"><label for="hide_complete"><?php echo $AppUI->_('Hide 100% Complete')?></label></td>
 	<td width="1%" nowrap="nowrap"><?php echo $AppUI->_('User Filter')?></td>
 	<td width="1%"><?php echo arraySelect($users, 'user_id', 'size="1" class="text" id="medium" onchange="document.frmFilter.submit()"',
-                          $user_id)?></td>
+                          -1)?></td>
 	<td width="1%" nowrap="nowrap"><?php echo $AppUI->_('Cost Code Filter')?></td>
 	<td width="1%"><?php echo arraySelect($task_log_costcodes, 'cost_code', 'size="1" class="text" onchange="document.frmFilter.submit()"',
                           $cost_code)?></td>
